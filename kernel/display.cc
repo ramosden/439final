@@ -10,7 +10,7 @@
 #define WHITE_ON_BLACK 0x0f
 
 Screen i/o ports 
-// #define REG_SCREEN_CTRL 0x3d4
+// #define REG_SCRxpEEN_CTRL 0x3d4
 // #define REG_SCREEN_DATA 0x3d5
 */
 
@@ -45,7 +45,7 @@ int move_offset_to_new_line(int offset) {
 void set_char_at_video_memory(char character, int offset) {
     unsigned char *vidmem = (unsigned char *) 0xb8000;
     vidmem[offset] = character;
-    vidmem[offset + 1] = 0x0f; //white on black
+    // vidmem[offset + 1] = 0x0f; //white on black
 }
 
 int scroll_ln(int offset) {

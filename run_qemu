@@ -4,9 +4,7 @@ UTCS_OPT=-O3 make clean $1
 
 
 time `make qemu_cmd` `make qemu_config_flags` \
-            #  -vga std \
-            -vga none \
-             -device VGA \
+             -vga std \
              -display curses \
              -no-reboot \
              --monitor none \

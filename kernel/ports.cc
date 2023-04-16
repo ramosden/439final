@@ -39,5 +39,3 @@ data port
 // int port_number = 0;
 
 // Ports * newPort = new Ports(port_number);
-
-
