@@ -67,23 +67,23 @@ int scroll_ln(int offset) {
  * TODO:
  * - handle illegal offset (print error message somewhere)
  */
-void print_string(char *string) {
-    int offset = get_cursor();
-    int i = 0;
-    while (string[i] != 0) {
-        if (offset >= 25 * 80 * 2) {
-            offset = scroll_ln(offset);
-        }
-        if (string[i] == '\n') {
-            offset = move_offset_to_new_line(offset);
-        } else {
-            set_char_at_video_memory(string[i], offset);
-            offset += 2;
-        }
-        i++;
-    }
-    set_cursor(offset);
-}
+// void print_string(char *string) {
+//     int offset = get_cursor();
+//     int i = 0;
+//     while (string[i] != 0) {
+//         if (offset >= 25 * 80 * 2) {
+//             offset = scroll_ln(offset);
+//         }
+//         if (string[i] == '\n') {
+//             offset = move_offset_to_new_line(offset);
+//         } else {
+//             set_char_at_video_memory(string[i], offset);
+//             offset += 2;
+//         }
+//         i++;
+//     }
+//     set_cursor(offset);
+// }
 
 void print_nl() {
     int newOffset = move_offset_to_new_line(get_cursor());

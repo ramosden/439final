@@ -1,6 +1,8 @@
-#include "display.h"
+// #include "display.h"
 #include "debug.h"
 #include "stdint.h"
+#include "vga.h"
+#include "init.h"
 
 // const uint16_t VGA_WIDTH = 80;
 // const uint16_t VGA_HEIGHT = 25;
@@ -104,12 +106,12 @@
 
 
 
-auto VGA_CTRL_REGISTER = 0x3D4;
-auto VGA_DATA_REGISTER = 0x3D5;
-auto VGA_CURSOR_LOCATION_HIGH = 14;
-auto VGA_CURSOR_LOCATION_LOW = 15;
-auto VGA_MEMORY = 0xB8000;
-auto VGA_WIDTH = 80;
+// auto VGA_CTRL_REGISTER = 0x3D4;
+// auto VGA_DATA_REGISTER = 0x3D5;
+// auto VGA_CURSOR_LOCATION_HIGH = 14;
+// auto VGA_CURSOR_LOCATION_LOW = 15;
+// auto VGA_MEMORY = 0xB8000;
+// auto VGA_WIDTH = 80;
 
 // Helper function to write to VGA register
 // void write_vga_register(uint8_t index, uint8_t value) {
@@ -117,56 +119,58 @@ auto VGA_WIDTH = 80;
 // }
 
 // Set cursor position on screen
-void set_cursor_position(uint16_t position) {
-    outb(VGA_CTRL_REGISTER, VGA_CURSOR_LOCATION_HIGH); // Make sure that the outb function is properly defined and implemented to write to the specified port.
-    outb(VGA_DATA_REGISTER, position >> 8);
-    outb(VGA_CTRL_REGISTER, VGA_CURSOR_LOCATION_LOW); // Make sure that the outb function is properly defined and implemented to write to the specified port.
-    outb(VGA_DATA_REGISTER, position);
-}
+// void set_cursor_position(uint16_t position) {
+//     outb(VGA_CTRL_REGISTER, VGA_CURSOR_LOCATION_HIGH); // Make sure that the outb function is properly defined and implemented to write to the specified port.
+//     outb(VGA_DATA_REGISTER, position >> 8);
+//     outb(VGA_CTRL_REGISTER, VGA_CURSOR_LOCATION_LOW); // Make sure that the outb function is properly defined and implemented to write to the specified port.
+//     outb(VGA_DATA_REGISTER, position);
+// }
 
 // Print a string at the given VGA memory address
-void print_string(const char* str, uint16_t location) {
-    // Set cursor position at start of the line
-    set_cursor_position(location);
+// void print_string(const char* str, uint16_t location) {
+//     // Set cursor position at start of the line
+//     set_cursor_position(location);
 
-    // Loop through string and write characters to VGA memory
-    for (size_t i = 0; str[i] != '\0'; i++) {
-        uint16_t* location_ptr = reinterpret_cast<uint16_t*>(VGA_MEMORY + location + i * 2); // Make sure that the location_ptr is pointing to the correct memory location in VGA_MEMORY.
-        *location_ptr = static_cast<uint16_t>(str[i]) | 0x0700; // Make sure that the character is properly converted to uint16_t and combined with the attribute byte to display the correct color.
-    }
-}
+//     // Loop through string and write characters to VGA memory
+//     for (size_t i = 0; str[i] != '\0'; i++) {
+//         uint16_t* location_ptr = reinterpret_cast<uint16_t*>(VGA_MEMORY + location + i * 2); // Make sure that the location_ptr is pointing to the correct memory location in VGA_MEMORY.
+//         *location_ptr = static_cast<uint16_t>(str[i]) | 0x0700; // Make sure that the character is properly converted to uint16_t and combined with the attribute byte to display the correct color.
+//     }
+// }
 
-// VGA initialization function
-void vga_init() {
-    // Set VGA text mode
-    outb(0x3C2, 0x0F);
-    outb(0x3D4, 0x0A);
-    outb(0x3D5, 0x20);
-    outb(0x3D4, 0x0B);
-    outb(0x3D5, 0x0);
-    outb(0x3D4, 0x0C);
-    outb(0x3D5, 0x0);
-    outb(0x3D4, 0x0D);
-    outb(0x3D5, 0x0E);
+// // VGA initialization function
+// void vga_init() {
+//     // Set VGA text mode
+//     outb(0x3C2, 0x0F);
+//     outb(0x3D4, 0x0A);
+//     outb(0x3D5, 0x20);
+//     outb(0x3D4, 0x0B);
+//     outb(0x3D5, 0x0);
+//     outb(0x3D4, 0x0C);
+//     outb(0x3D5, 0x0);
+//     outb(0x3D4, 0x0D);
+//     outb(0x3D5, 0x0E);
 
-    // Clear screen
-    for (uint16_t i = 0; i < VGA_WIDTH; i++) {
-        print_string(" ", i * 2); // Make sure that print_string is properly implemented to write spaces to VGA memory.
-    }
-}
-void print_string_two(const char* str, uint16_t location) {
-    // Set cursor position at start of the line
-    set_cursor_position(location);
+//     // Clear screen
+//     for (uint16_t i = 0; i < VGA_WIDTH; i++) {
+//         print_string(" ", i * 2); // Make sure that print_string is properly implemented to write spaces to VGA memory.
+//     }
+// }
 
-    // Loop through string and write characters to VGA memory
-    for (size_t i = 0; str[i] != '\0'; i++) {
-        uint16_t* location_ptr = reinterpret_cast<uint16_t*>(VGA_MEMORY + location + i * 2);
-        uint16_t value = static_cast<uint16_t>(str[i]) | 0x0700;
-        *location_ptr = value;
-        Debug::printf("VGA memory at location %x: %04x\n", location + i * 2, value);
-    }
-}
+// void print_string_two(const char* str, uint16_t location) {
+//     // Set cursor position at start of the line
+//     set_cursor_position(location);
+
+//     // Loop through string and write characters to VGA memory
+//     for (size_t i = 0; str[i] != '\0'; i++) {
+//         uint16_t* location_ptr = reinterpret_cast<uint16_t*>(0xB8000 + location + i * 2);
+//         uint16_t value = static_cast<uint16_t>(str[i]) | 0x0700;
+//         *location_ptr = value;
+//         Debug::printf("VGA memory at location %x: %04x\n", location + i * 2, value);
+//     }
+// }
+
 void kernelMain() {
-    vga_init();
-    print_string_two("Hello, world!", VGA_MEMORY); // Make sure that VGA_MEMORY is properly defined and points to the correct memory location in VGA.
+    // vga_init();
+    newvga -> print_string("Hello, world!", (uint16_t)0xB8000); // Make sure that VGA_MEMORY is properly defined and points to the correct memory location in VGA.
 }
