@@ -30,7 +30,8 @@ class VGA {
                 *location_ptr = static_cast<uint16_t>(str[i]) | 0x0700; // Make sure that the character is properly converted to uint16_t and combined with the attribute byte to display the correct color.
             }
         }
-                // VGA initialization function
+        
+        // VGA initialization function
         void vga_init() {
             // Set VGA text mode
             outb(0x3C2, 0x0F);
@@ -45,8 +46,35 @@ class VGA {
 
             // Clear screen
             for (uint16_t i = 0; i < 80; i++) {
-                print_string(" ", i * 2); // Make sure that print_string is properly implemented to write spaces to VGA memory.
+                print_string("a", i * 2); // Make sure that print_string is properly implemented to write spaces to VGA memory.
+            }
+
+                // Set VGA graphics mode
+            // outb(0x3C2, 0xE3);
+            // outb(0x3D4, 0x01);
+            // outb(0x3D5, 0x00);
+            // outb(0x3D4, 0x02);
+            // outb(0x3D5, 0x01);
+            // outb(0x3D4, 0x03);
+            // outb(0x3D5, 0x0F);
+
+            // // Draw a white pixel at (50, 50)
+            // uint16_t* pixel = reinterpret_cast<uint16_t*>(0xA0000 + 50 * 320 + 50);
+            // *pixel = 0xFFFF;
+        }
+
+        void write_text() {
+            for (int y = 0; y < 25; y++) {
+                for (int x = 0; x < 80; x++) {
+                    int index = y * 80 + x;
+                    outb(0x03, 0x0f); // VGA_REG_CRT_CONTROLLER
+                    outb(0x3d5, index); // VGA_PORT_DATA
+                    outb(0x03, 0x0e); 
+                    outb(0x3d5, 0x0f); 
+                    // putchar('A' + (index % 26));
+                }
             }
         }
+
 };
 #endif

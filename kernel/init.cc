@@ -12,7 +12,7 @@
 #include "idt.h"
 #include "crt.h"
 #include "stdint.h"
-#include "vga.h"
+#include "vga2.h"
 
 struct Stack {
     static constexpr int BYTES = 4096*1;
@@ -134,8 +134,12 @@ extern "C" void kernelInit(void) {
     auto id = SMP::me();
 
     // TODO: SET UP VGA HERE!!
-    auto newvga = new VGA();
-    newvga -> vga_init();
+    // auto newvga = new VGA();
+    // newvga -> vga_init();
+    // newvga->write_text();
+
+    VGA2* vga2 = new VGA2();
+    vga2->vga_init();
 
     Debug::printf("| %d enabling interrupts, I'm scared\n",id);
     sti();
