@@ -46,7 +46,7 @@ class VGA {
 
             // Clear screen
             for (uint16_t i = 0; i < 80; i++) {
-                print_string("a", i * 2); // Make sure that print_string is properly implemented to write spaces to VGA memory.
+                print_string("hi denise kat elin", i * 2); // Make sure that print_string is properly implemented to write spaces to VGA memory.
             }
 
                 // Set VGA graphics mode

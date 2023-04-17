@@ -171,6 +171,16 @@
 // }
 
 void kernelMain() {
-    // vga_init();
-    newvga -> print_string("Hello, world!", (uint16_t)0xB8000); // Make sure that VGA_MEMORY is properly defined and points to the correct memory location in VGA.
+    // Make sure that VGA_MEMORY is properly defined and points to 
+    //the correct memory location in VGA.
+    while(1){
+        auto newvga = new VGA();
+        newvga -> vga_init();
+        // newvga -> print_string("Hello, world!", (uint16_t)0xB8000); 
+    }
+
+    
+    // VGA2* vga2 = new VGA2();
+    // vga2->vga_init();
+
 }

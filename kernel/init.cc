@@ -138,8 +138,8 @@ extern "C" void kernelInit(void) {
     // newvga -> vga_init();
     // newvga->write_text();
 
-    VGA2* vga2 = new VGA2();
-    vga2->vga_init();
+    // VGA2* vga2 = new VGA2();
+    // vga2->vga_init();
 
     Debug::printf("| %d enabling interrupts, I'm scared\n",id);
     sti();
