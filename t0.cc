@@ -173,11 +173,16 @@
 void kernelMain() {
     // Make sure that VGA_MEMORY is properly defined and points to 
     //the correct memory location in VGA.
-    while(1){
-        auto newvga = new VGA();
-        newvga -> vga_init();
-        // newvga -> print_string("Hello, world!", (uint16_t)0xB8000); 
+    auto newvga = new VGA();
+    newvga -> vga_init();
+    for (uint16_t i = 150; i < 210; i++) {
+            newvga -> print_string(" hello from t0 ", i * 2); // Make sure that print_string is properly implemented to write spaces to VGA memory.
     }
+    while(true){
+        // newvga -> write_text();
+        
+    }
+
 
     
     // VGA2* vga2 = new VGA2();
