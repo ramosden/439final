@@ -134,10 +134,8 @@ extern "C" void kernelInit(void) {
     auto id = SMP::me();
 
     // TODO: SET UP VGA HERE!!
-    newvga = new VGA();
+    auto newvga = new VGA();
     newvga -> vga_init();
-
-
 
     Debug::printf("| %d enabling interrupts, I'm scared\n",id);
     sti();

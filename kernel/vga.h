@@ -1,6 +1,6 @@
+#ifndef vga_h
+#define vga_h
 #include "machine.h"
-#include "debug.h"
-#include "stdint.h"
 
 class VGA {
     public:
@@ -49,3 +49,4 @@ class VGA {
             }
         }
 };
+#endif
