@@ -40,13 +40,16 @@ QEMU_CONFIG_FLAGS = -accel ${QEMU_ACCEL} \
                     -smp ${QEMU_SMP} \
                     -m ${QEMU_MEM} \
                     -no-reboot \
+					-vga std \
+					-vnc :700 \
                     -no-shutdown
+	
 
 
 QEMU_FLAGS = \
 	     ${QEMU_CONFIG_FLAGS} \
 	     -vga std \
-		 -display curses \
+		-vnc :700 \
 		--monitor none \
 	     --serial file:$*.raw \
              -drive file=kernel/build/$*.img,index=0,media=disk,format=raw \
