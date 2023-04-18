@@ -26,7 +26,7 @@ class VGA {
             // Set cursor position at start of the line
             set_cursor_position(location);
 
-            // Loop through string and write characters to VGA memory
+            // Loop through string and write cfharacters to VGA memory
             for (size_t i = 0; str[i] != '\0'; i++) {
                 uint16_t* location_ptr = reinterpret_cast<uint16_t*>(0xB8000 + location + i * 2); // Make sure that the location_ptr is pointing to the correct memory location in VGA_MEMORY.
                 *location_ptr = static_cast<uint16_t>(str[i]) | 0x0700; // Make sure that the character is properly converted to uint16_t and combined with the attribute byte to display the correct color.

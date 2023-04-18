@@ -10,3 +10,4 @@ time `make qemu_cmd` `make qemu_config_flags` \
              --monitor none \
              -drive file=kernel/build/$1.img,index=0,media=disk,format=raw \
              -device isa-debug-exit,iobase=0xf4,iosize=0x04 || true
+

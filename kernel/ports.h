@@ -6,8 +6,8 @@
 
 class Ports {
     public:
-        uint32_t port_number;
-        Ports(uint32_t port_number): port_number(port_number) {}
+        uint16_t port_number;
+        Ports(uint16_t port_number): port_number(port_number) {}
 
         ~Ports() {}
 
