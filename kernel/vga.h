@@ -2,6 +2,8 @@
 #define vga_h
 #include "machine.h"
 
+
+//use this to pull up text mode! make a VGA object
 class VGA {
     public:
 
