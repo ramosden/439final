@@ -8,12 +8,7 @@
 
 void kernelMain() {
     
-    //the code below is for vga text mode!!!
-        // auto newvga = new VGA();
-        // newvga -> vga_init();
-        // for (uint16_t i = 150; i < 210; i++) {
-        //         newvga -> print_string(" hello from t0 ", i * 2); // Make sure that print_string is properly implemented to write spaces to VGA memory.
-        // }
+ 
         // while(true){
         //     // newvga -> write_text();
             
@@ -36,19 +31,32 @@ void kernelMain() {
 
     graphicVGA -> setMode(320, 200, 8); //0x13 graphics mode
     
-    //draw a rectangle on screen
-    for(int32_t y = 0; y < 200; y++){
-        for(int32_t x = 0; x < 320; x++){
-            graphicVGA -> putPixel(x, y, 0x00, 0x00, 0xA8);
-        }
-    }
+
 
     Window * newWindow = new Window(graphicVGA, 0, 0, 320, 200);
     newWindow -> draw_window();
-    // for (size_t i = 0; str[i] != '\0'; i++) {
-    //             uint16_t* location_ptr = reinterpret_cast<uint16_t*>(0xB8000 + location + i * 2); // Make sure that the location_ptr is pointing to the correct memory location in VGA_MEMORY.
-    //             *location_ptr = static_cast<uint16_t>(str[i]) | 0x0700; // Make sure that the character is properly converted to uint16_t and combined with the attribute byte to display the correct color.
-    //         }
+    newWindow -> fillRectangle(320, 200, graphicVGA, 0x01);
+
+    // Window * newWindowtwo = new Window(graphicVGA, 0, 0, 320, 200);
+    // newWindowtwo -> draw_window();
+    // newWindowtwo -> fillRectangle(320, 200, graphicVGA, 0x00);
+
+    // CLEAR SCREEN
+    // if (input) {
+    //     // for(int32_t y = 0; y < 200; y++){
+    //     //     for(int32_t x = 0; x < 320; x++){
+    //     //         graphicVGA -> putPixelIndex(x, y, 0x01);
+    //     //     }
+    //     // }
+    // }
+
+       //the code below is for vga text mode!!!
+        // auto newvga = new VGA();
+        // newvga -> vga_init();
+        // for (uint16_t i = 150; i < 210; i++) {
+        //         newvga -> print_string(" hello from t0 ", i * 2); // Make sure that print_string is properly implemented to write spaces to VGA memory.
+        // }
+
     while(1);
 
 }

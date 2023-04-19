@@ -128,9 +128,11 @@ class graphicsVGA {
         if(r == 0x00 && g == 0x00 && b == 0xA8){
             return 0x01; //blue
         } 
-        
         else if(r == 0xFF && g == 0xFF && b == 0xFF){
-            return 0x17; //white
+            return 0x0F; // lilac
+        } 
+        else if(r == 0xFF && g == 0xD5 && b == 0xDE){
+            return 0x03;
         }
         return 0x00;
     }

@@ -29,7 +29,7 @@ public:
 
     void draw_window() {
         // WINDOW BORDER
-        drawRectangle(x, y, width, height, 0x17); // white color
+        // drawRectangle(x, y, width, height, 0xA7); // white color
 
         // TITLE BAR
         drawRectangle(x, y, width, 20, 0x01); // blue color
@@ -38,7 +38,7 @@ public:
         // drawText(x+5, y+5, "My Window", 0xFFFFFF); // white color
         
         // INTERIOR CONTENT
-        drawRectangle(x+2, y+22, width-4, height-24, 0x17); // light gray color
+        // drawRectangle(x+2, y+22, width-4, height-24, 0x17); // light gray color
     }
     
     void drawRectangle(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t colorIndex) {
@@ -52,4 +52,14 @@ public:
             vga->putPixelIndex(x + width - 1, j, color); // right vertical line
         }
     }
+    
+    void fillRectangle(uint32_t width, uint32_t height, graphicsVGA* graphicVGA, uint8_t colorIndex) {
+            // INTERIOR green bg
+        for(uint32_t y = 0; y < height; y++){
+            for(uint32_t x = 0; x < width; x++){
+                graphicVGA -> putPixelIndex(x, y, colorIndex);
+            }
+        }
+    }
+
 };
