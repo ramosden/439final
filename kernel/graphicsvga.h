@@ -1,4 +1,3 @@
-
 #include "stdint.h"
 #include "machine.h"
 #include "ports.h"
@@ -17,24 +16,22 @@ class graphicsVGA {
         Ports attrbCtrlReadPort{0x3C1};
         Ports attrbCtrlWritePort{0x3C0};
         Ports attrbCtrlResetPort{0x3DA};
-    
-    graphicsVGA(
-    Ports miscPort, Ports crtcIndexPort, Ports crtcDataPort,  Ports seqIndexPort, Ports seqDataPort, Ports graphicsCtrlIndexPort, Ports graphicsCtrlDataPort, Ports attrbCtrlIndexPort, Ports attrbCtrlReadPort, Ports attrbCtrlWritePort, Ports attrbCtrlResetPort) : 
-    miscPort(0x3C2),
-    crtcIndexPort(0x3D4),
-    crtcDataPort(0x3D5),
-    seqIndexPort(0x3C4),
-    seqDataPort(0x3C5),
-    graphicsCtrlIndexPort(0x3CE),
-    graphicsCtrlDataPort(0x3CF),
-    attrbCtrlIndexPort(0x3C0),
-    attrbCtrlReadPort(0x3C1),
-    attrbCtrlWritePort(0x3C0),
-    attrbCtrlResetPort(0x3DA)
-    
-    {
-    }
-    ~graphicsVGA() {}
+        
+        graphicsVGA(
+        Ports miscPort, Ports crtcIndexPort, Ports crtcDataPort,  Ports seqIndexPort, Ports seqDataPort, Ports graphicsCtrlIndexPort, Ports graphicsCtrlDataPort, Ports attrbCtrlIndexPort, Ports attrbCtrlReadPort, Ports attrbCtrlWritePort, Ports attrbCtrlResetPort) : 
+        miscPort(0x3C2),
+        crtcIndexPort(0x3D4),
+        crtcDataPort(0x3D5),
+        seqIndexPort(0x3C4),
+        seqDataPort(0x3C5),
+        graphicsCtrlIndexPort(0x3CE),
+        graphicsCtrlDataPort(0x3CF),
+        attrbCtrlIndexPort(0x3C0),
+        attrbCtrlReadPort(0x3C1),
+        attrbCtrlWritePort(0x3C0),
+        attrbCtrlResetPort(0x3DA) {}
+
+        ~graphicsVGA() {}
 
     void writeRegisters(uint8_t * registers) {
         // misc regs
@@ -123,19 +120,23 @@ class graphicsVGA {
             case 3<<2: return(uint8_t*)0xB8000;
         }
     }
-    void putPixel(uint32_t x, uint32_t y, uint8_t colorIndex) {
+    void putPixelIndex(uint32_t x, uint32_t y, uint8_t colorIndex) {
         uint8_t* pixelAddr = GetFrameBufferSegment() + 320*y + x;
         *pixelAddr = colorIndex;
     }
     uint8_t getColorIndex(uint8_t r, uint8_t g, uint8_t b) {
         if(r == 0x00 && g == 0x00 && b == 0xA8){
-            return 0x01;
+            return 0x01; //blue
+        } 
+        
+        else if(r == 0xFF && g == 0xFF && b == 0xFF){
+            return 0x17; //white
         }
         return 0x00;
     }
     
     void putPixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b) {
-        putPixel(x, y, getColorIndex(r, g, b));
+        putPixelIndex(x, y, getColorIndex(r, g, b));
     }
 };
 
