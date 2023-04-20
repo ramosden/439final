@@ -35,16 +35,22 @@ void kernelMain() {
         /* LILAC BACKGROUND */
         Window * background = new Window(); // vga, x, y
         background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x0F); 
+        
+        /* DARK PURPLE BACKGROUND*/
+        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x31); 
 
-        /* BLUE BACKGROUND*/
-        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x19); 
+        /* MUTED PURPLE BACKGROUND*/
+        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x15); 
+        
+        /* DARK BLUE BACKGROUND*/
+        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x11); 
 
-        /* ORANGE BACKGROUND*/
-        // background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x3D); 
+        /*  BACKGROUND*/
+        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x21); 
 
     // /* GRASS */
     Window * grass = new Window();
-    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02); // x, y, vga, width, height, colorindex
+    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x10); // x, y, vga, width, height, colorindex
 
     // /* SUN */
     Window * sun = new Window(); // vga, x, y
@@ -68,16 +74,22 @@ void kernelMain() {
     cloudone->fillCircle(265, 70, graphicVGA, 9, 0x3F);
     cloudone->fillCircle(275, 75, graphicVGA, 11, 0x3F);
 
+    // SHEEP!!!
+    Window* sheep = new Window();
+    sheep->fillCircle(250, 160, graphicVGA, 10, 0x0F);
+    // sheep->fillCircle(260, 165, graphicVGA, 10, 0x31);
+    // sheep->fillCircle(270, 160, graphicVGA, 10, 0x31);
+    // sheep->fillCircle(280, 165, graphicVGA, 10, 0x31);
+
     // COW
-    
     Window * cowbody = new Window();
     cowbody -> fillRectangle(30, 150, graphicVGA, 45, 20, 0x3D);
 
     Window * cowlegone = new Window();
     cowlegone -> fillRectangle(35, 170, graphicVGA, 10, 12, 0x3D);
 
-    Window * cowlegtwo = new Window();
-    cowlegtwo -> fillRectangle(35, 170, graphicVGA, 10, 9, 0x3D);
+    // Window * cowlegtwo = new Window();
+    // cowlegtwo -> fillRectangle(35, 170, graphicVGA, 10, 9, 0x3D);
 
     Window * cowlegthree = new Window();
     cowlegthree -> fillRectangle(60, 170, graphicVGA, 10, 12, 0x3D);
@@ -87,49 +99,83 @@ void kernelMain() {
 
 
     Window * cowmouth = new Window();
-    cowmouth -> fillRectangle(15, 150, graphicVGA, 23, 5, 0x3F);
-    
-
+    cowmouth -> fillRectangle(17, 150, graphicVGA, 20, 5, 0x3F);
+        
     Window * coweyeone = new Window();
-    coweyeone -> fillCircle(23, 144, graphicVGA, 1, 0x00);
+    coweyeone -> fillCircle(23, 144, graphicVGA, 1, 0x3F);
 
     Window * coweyetwo = new Window();
-    coweyetwo -> fillCircle(31, 144, graphicVGA, 1, 0x00);
-
+    coweyetwo -> fillCircle(31, 144, graphicVGA, 1, 0x3F);
 
     Window * cownostrilone = new Window();
-    cownostrilone -> fillCircle(18, 152, graphicVGA, 1, 0x00);
+    cownostrilone -> fillCircle(21, 152, graphicVGA, 1, 0x3D);
 
     Window * cownostriltwo = new Window();
-    cownostriltwo -> fillCircle(34, 152, graphicVGA, 1, 0x00);
-/*
+    cownostriltwo -> fillCircle(33, 152, graphicVGA, 1, 0x3D);
+
     Window * cowhairone = new Window();
-    cowhairone -> fillCircle(0, 0, graphicVGA, 2, 0x3F);
+    cowhairone -> fillCircle(20, 137, graphicVGA, 2, 0x3F);
 
     Window * cowhairtwo = new Window();
-    cowhairtwo -> fillCircle(0, 0, graphicVGA, 2, 0x3F);
+    cowhairtwo -> fillCircle(25, 135, graphicVGA, 2, 0x3F);
 
     Window * cowhairthree = new Window();
-    cowhairthree -> fillCircle(0, 0, graphicVGA, 2, 0x3F);
+    cowhairthree -> fillCircle(29, 135, graphicVGA, 2, 0x3F);
 
     Window * cowhairfour = new Window();
-    cowhairfour -> fillCircle(0, 0, graphicVGA, 2, 0x3F);
+    cowhairfour -> fillCircle(34, 137, graphicVGA, 2, 0x3F);
 
-    Window * cowutters = new Window();
-    cowutters -> fillCircle();
+    Window * cowudders = new Window();
+    cowudders -> fillCircle(58, 170, graphicVGA, 6, 0x05);
 
-    Window * cowtail = new Window();
-    cowtail -> fillRectangle();
+    Window * cowtailpt1 = new Window();
+    cowtailpt1 -> fillRectangle(75, 150, graphicVGA, 7, 3, 0x3D);
+    
+    Window * cowtailpt2 = new Window();
+    cowtailpt2 -> fillRectangle(79, 150, graphicVGA, 3, 10, 0x3D);
     
     Window * cowtailend = new Window();
-    cowtailend -> fillCircle();
+    cowtailend -> fillCircle(80, 160, graphicVGA, 2, 0x3F);
 
+    Window * spots = new Window();
+    spots -> fillCircle(40, 165, graphicVGA, 1, 0x3F);
+    /*
+    spots -> fillCircle();
+    */
 
-*/
-
-
+    /*
     
+        Window * cow = new Window();
+        cow -> fillRectangle(30 + off_x, 150 + off_y, graphicVGA, 45, 20, 0x3D);
+        cow -> fillRectangle(35 + off_x, 170 + off_y, graphicVGA, 10, 12, 0x3D);
 
+        // Window * cowlegtwo = new Window();
+        // cowlegtwo -> fillRectangle(35, 170, graphicVGA, 10, 9, 0x3D);
+
+        cow -> fillRectangle(60 + off_x, 170 + off_y, graphicVGA, 10, 12, 0x3D);
+        cow -> fillCircle(27 + off_x, 147 + off_y, graphicVGA, 10, 0x3D);
+        cow -> fillRectangle(15 + off_x, 150 + off_y, graphicVGA, 23, 5, 0x3F);
+        cow -> fillCircle(23 + off_x, 144 + off_y, graphicVGA, 1, 0x00);
+        cow -> fillCircle(31 + off_x, 144 + off_y, graphicVGA, 1, 0x00);
+        cow -> fillCircle(18 + off_x, 152 + off_y, graphicVGA, 1, 0x00);
+        cow -> fillCircle(34 + off_x, 152 + off_y, graphicVGA, 1, 0x00);
+        cow -> fillCircle(20 + off_x, 137 + off_y, graphicVGA, 2, 0x3F);
+        cow -> fillCircle(25 + off_x, 135 + off_y, graphicVGA, 2, 0x3F);
+        cow -> fillCircle(29 + off_x, 135 + off_y, graphicVGA, 2, 0x3F);
+        cow -> fillCircle(34 + off_x, 137 + off_y, graphicVGA, 2, 0x3F);
+        cow -> fillCircle(58, 170, graphicVGA, 6, 0x05);
+        cow -> fillRectangle(75, 150, graphicVGA, 7, 3, 0x3D);
+        cow -> fillRectangle(79, 150, graphicVGA, 3, 10, 0x3D); 
+        cow -> fillCircle(80, 160, graphicVGA, 2, 0x05);
+    */
+
+//barn
+    Window * barn = new Window();
+    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+    // Window * barnDoor = new Window();
+    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
 
 
     // CLEAR SCREEN
