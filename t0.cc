@@ -41,11 +41,11 @@ void kernelMain() {
 
     // /* SUN */
     Window * sun = new Window(); // vga, x, y
-    sun->vga = graphicVGA;
-    sun -> fillRectangle(15, 15, graphicVGA, 50, 50, 0x0E); // width, height, colorindex
+    sun -> fillRectangle(15, 15, graphicVGA, 50, 50, 0x16); // width, height, colorindex
 
-
-
+    // cloud # 1
+    Window * cloudone = new Window();
+    cloudone -> fillRectangle(60, 20, graphicVGA, 70, 50, 0x3F);
     
     // CLEAR SCREEN
     // if (input) {
