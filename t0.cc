@@ -31,15 +31,13 @@ void kernelMain() {
 
     graphicVGA -> setMode(320, 200, 8); //0x13 graphics mode
     
-
-
     Window * newWindow = new Window(graphicVGA, 0, 0, 320, 200);
     newWindow -> draw_window();
-    newWindow -> fillRectangle(320, 200, graphicVGA, 0x01);
+    newWindow -> fillRectangle(320, 200, graphicVGA, 0x0F);
 
-    // Window * newWindowtwo = new Window(graphicVGA, 0, 0, 320, 200);
-    // newWindowtwo -> draw_window();
-    // newWindowtwo -> fillRectangle(320, 200, graphicVGA, 0x00);
+    Window * newWindowtwo = new Window(graphicVGA, 0, 0, 320, 200);
+    newWindowtwo -> draw_window();
+    newWindowtwo -> fillRectangle(320, 200, graphicVGA, 0x00);
 
     // CLEAR SCREEN
     // if (input) {

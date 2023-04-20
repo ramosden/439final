@@ -5,7 +5,7 @@ UTCS_OPT=-O3 make clean $1
 
 time `make qemu_cmd` `make qemu_config_flags` \
              -vga std \
-             -vnc :3 \
+             -vnc :0 \
              -no-reboot \
              -serial stdio \
              --monitor none \
