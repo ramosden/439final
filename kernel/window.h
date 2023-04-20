@@ -56,4 +56,57 @@ public:
         }
     }
 
+    void fillCircle(uint32_t centerX, uint32_t centerY, graphicsVGA *vga, uint32_t radius, uint8_t colorIndex) {
+        uint32_t xMin = centerX - radius;
+        uint32_t xMax = centerX + radius;
+        uint32_t yMin = centerY - radius;
+        uint32_t yMax = centerY + radius;
+
+        for (uint32_t y = yMin; y <= yMax; y++) {
+            for (uint32_t x = xMin; x <= xMax; x++) {
+                uint32_t dx = x - centerX;
+                uint32_t dy = y - centerY;
+                if (dx * dx + dy * dy <= radius * radius) {
+                    vga->putPixelIndex(x, y, colorIndex);
+                }
+            }
+        }
+    }
+
+    void fillOval(uint32_t centerX, uint32_t centerY, graphicsVGA *vga, uint32_t radiusX, uint32_t radiusY, uint8_t colorIndex) {
+        uint32_t xMin = centerX - radiusX;
+        uint32_t xMax = centerX + radiusX;
+        uint32_t yMin = centerY - radiusY;
+        uint32_t yMax = centerY + radiusY;
+
+        for (uint32_t y = yMin; y <= yMax; y++) {
+            for (uint32_t x = xMin; x <= xMax; x++) {
+                uint32_t dx = x - centerX;
+                uint32_t dy = y - centerY;
+                if ((dx*dx)/(radiusX*radiusX) + (dy*dy)/(radiusY*radiusY) <= 1) {
+                    vga->putPixelIndex(x, y, colorIndex);
+                }
+            }
+        }
+    }
+
+    void drawCow(graphicsVGA *vga) {
+        // Draw head
+        fillOval(160, 70, vga, 30, 20, 1); // Head
+        fillCircle(145, 63, vga, 5, 0); // Eye
+        fillCircle(145, 63, vga, 2, 1); // Pupil
+
+        // Draw body
+        fillOval(120, 110, vga, 40, 20, 1); // Upper body
+        fillOval(100, 120, vga, 40, 20, 1); // Lower body
+        fillRectangle(100, 110, vga, 20, 30, 0); // Left leg
+        fillRectangle(120, 110, vga, 20, 30, 0); // Right leg
+
+        // Draw spots
+        fillCircle(135, 100, vga, 6, 0); // Spot on head
+        fillCircle(112, 115, vga, 5, 0); // Spot on upper body
+        fillCircle(130, 130, vga, 7, 0); // Spot on lower body
+        fillCircle(150, 130, vga, 7, 0); // Spot on lower body
+    }
+
 };

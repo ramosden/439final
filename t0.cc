@@ -31,9 +31,16 @@ void kernelMain() {
 
     graphicVGA -> setMode(320, 200, 8); //0x13 graphics mode
     
-    /* BACKGROUND */
-    Window * background = new Window(); // vga, x, y
-    background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x09); // x, y, vga, width, height, colorindex
+    /*BACKGROUNDS */
+        /* LILAC BACKGROUND */
+        Window * background = new Window(); // vga, x, y
+        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x0F); 
+
+        /* BLUE BACKGROUND*/
+        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x19); 
+
+        /* ORANGE BACKGROUND*/
+        // background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x3D); 
 
     // /* GRASS */
     Window * grass = new Window();
@@ -41,20 +48,88 @@ void kernelMain() {
 
     // /* SUN */
     Window * sun = new Window(); // vga, x, y
-    sun -> fillRectangle(15, 15, graphicVGA, 50, 50, 0x16); // width, height, colorindex
+    // sun -> fillRectangle(15, 15, graphicVGA, 50, 50, 0x16); // width, height, colorindex
+    sun->fillCircle(40, 40, graphicVGA, 25, 0x36);
 
-    // cloud # 1
+    // clouds
     Window * cloudone = new Window();
-    cloudone -> fillRectangle(80, 50, graphicVGA, 40, 10, 0x3F);
+    cloudone->fillCircle(60, 50, graphicVGA, 15, 0x3F);
+    cloudone->fillCircle(70, 55, graphicVGA, 15, 0x3F);
+    cloudone->fillCircle(80, 50, graphicVGA, 15, 0x3F);
+    cloudone->fillCircle(90, 55, graphicVGA, 15, 0x3F);
+
+    cloudone->fillCircle(150, 30, graphicVGA, 10, 0x3F);
+    cloudone->fillCircle(160, 33, graphicVGA, 10, 0x3F);
+    cloudone->fillCircle(170, 30, graphicVGA, 10, 0x3F);
+    cloudone->fillCircle(180, 33, graphicVGA, 10, 0x3F);
+
+    cloudone->fillCircle(250, 70, graphicVGA, 9, 0x3F);
+    cloudone->fillCircle(260, 75, graphicVGA, 11, 0x3F);
+    cloudone->fillCircle(265, 70, graphicVGA, 9, 0x3F);
+    cloudone->fillCircle(275, 75, graphicVGA, 11, 0x3F);
+
+    // COW
     
-    Window * cloudone1 = new Window();
-    cloudone1 -> fillRectangle(150, 45, graphicVGA, 40, 10, 0x3F);
+    Window * cowbody = new Window();
+    cowbody -> fillRectangle(30, 150, graphicVGA, 45, 20, 0x3D);
 
-    // Window * cloudtwo = new Window();
-    // cloudtwo -> fillRectangle();
+    Window * cowlegone = new Window();
+    cowlegone -> fillRectangle(35, 170, graphicVGA, 10, 12, 0x3D);
 
-    // Window * cloudthree = new Window();
-    // cloudthree -> fillRectangle()
+    Window * cowlegtwo = new Window();
+    cowlegtwo -> fillRectangle(35, 170, graphicVGA, 10, 9, 0x3D);
+
+    Window * cowlegthree = new Window();
+    cowlegthree -> fillRectangle(60, 170, graphicVGA, 10, 12, 0x3D);
+
+    Window * cowhead = new Window();
+    cowhead -> fillCircle(27, 147, graphicVGA, 10, 0x3D);
+
+
+    Window * cowmouth = new Window();
+    cowmouth -> fillRectangle(15, 150, graphicVGA, 23, 5, 0x3F);
+    
+
+    Window * coweyeone = new Window();
+    coweyeone -> fillCircle(23, 144, graphicVGA, 1, 0x00);
+
+    Window * coweyetwo = new Window();
+    coweyetwo -> fillCircle(31, 144, graphicVGA, 1, 0x00);
+
+
+    Window * cownostrilone = new Window();
+    cownostrilone -> fillCircle(18, 152, graphicVGA, 1, 0x00);
+
+    Window * cownostriltwo = new Window();
+    cownostriltwo -> fillCircle(34, 152, graphicVGA, 1, 0x00);
+/*
+    Window * cowhairone = new Window();
+    cowhairone -> fillCircle(0, 0, graphicVGA, 2, 0x3F);
+
+    Window * cowhairtwo = new Window();
+    cowhairtwo -> fillCircle(0, 0, graphicVGA, 2, 0x3F);
+
+    Window * cowhairthree = new Window();
+    cowhairthree -> fillCircle(0, 0, graphicVGA, 2, 0x3F);
+
+    Window * cowhairfour = new Window();
+    cowhairfour -> fillCircle(0, 0, graphicVGA, 2, 0x3F);
+
+    Window * cowutters = new Window();
+    cowutters -> fillCircle();
+
+    Window * cowtail = new Window();
+    cowtail -> fillRectangle();
+    
+    Window * cowtailend = new Window();
+    cowtailend -> fillCircle();
+
+
+*/
+
+
+    
+
 
 
     // CLEAR SCREEN
