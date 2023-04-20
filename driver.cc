@@ -6,8 +6,102 @@
 #include "stdint.h"
 #include "kernel/vga.h"
 #include "init.h"
-#include "kernel/graphicsvga.h"
+// #include "kernel/graphicsvga.h"
+#include "kernel/window.h"
 
+/* INSTRUCTIONS 
+
+KEY T - MOVE CLOUDS 
+KET U - MOVE COW
+KEY S - Sunset Animation
+
+
+*/
+
+struct Cloud {
+    int offset_x;
+    int offset_y;
+    Cloud(int off_x, int off_y) : offset_x(off_x), offset_y(off_y) {}
+
+    void createCloud(graphicsVGA * graphicVGA, int off_x, int off_y) {
+           // clouds
+        Window * cloudone = new Window();
+        cloudone->fillCircle(60 + off_x, 50 + off_y, graphicVGA, 15, 0x3F);
+        cloudone->fillCircle(70 + off_x, 55 + off_y, graphicVGA, 15, 0x3F);
+        cloudone->fillCircle(80 + off_x, 50 + off_y, graphicVGA, 15, 0x3F);
+        cloudone->fillCircle(90 + off_x, 55 + off_y, graphicVGA, 15, 0x3F);
+
+        cloudone->fillCircle(150 + off_x, 30 + off_y, graphicVGA, 10, 0x3F);
+        cloudone->fillCircle(160 + off_x, 33 + off_y, graphicVGA, 10, 0x3F);
+        cloudone->fillCircle(170 + off_x, 30 + off_y, graphicVGA, 10, 0x3F);
+        cloudone->fillCircle(180 + off_x, 33 + off_y, graphicVGA, 10, 0x3F);
+
+        cloudone->fillCircle(250 + off_x, 70 + off_y, graphicVGA, 9, 0x3F);
+        cloudone->fillCircle(260 + off_x, 75 + off_y, graphicVGA, 11, 0x3F);
+        cloudone->fillCircle(265 + off_x, 70 + off_y, graphicVGA, 9, 0x3F);
+        cloudone->fillCircle(275 + off_x, 75 + off_y, graphicVGA, 11, 0x3F);
+    }
+    void removeCloud(graphicsVGA * graphicVGA, int off_x, int off_y) {
+         Window * cloudone = new Window();
+        cloudone->fillCircle(60 + off_x, 50 + off_y, graphicVGA, 15, 0x11);
+        cloudone->fillCircle(70 + off_x, 55 + off_y, graphicVGA, 15, 0x11);
+        cloudone->fillCircle(80 + off_x, 50 + off_y, graphicVGA, 15, 0x11);
+        cloudone->fillCircle(90 + off_x, 55 + off_y, graphicVGA, 15, 0x11);
+
+        cloudone->fillCircle(150 + off_x, 30 + off_y, graphicVGA, 10, 0x11);
+        cloudone->fillCircle(160 + off_x, 33 + off_y, graphicVGA, 10, 0x11);
+        cloudone->fillCircle(170 + off_x, 30 + off_y, graphicVGA, 10, 0x11);
+        cloudone->fillCircle(180 + off_x, 33 + off_y, graphicVGA, 10, 0x11);
+
+        cloudone->fillCircle(250 + off_x, 70 + off_y, graphicVGA, 9, 0x11);
+        cloudone->fillCircle(260 + off_x, 75 + off_y, graphicVGA, 11, 0x11);
+        cloudone->fillCircle(265 + off_x, 70 + off_y, graphicVGA, 9, 0x11);
+        cloudone->fillCircle(275 + off_x, 75 + off_y, graphicVGA, 11, 0x11);
+    }
+};
+
+struct Cow {
+    void createCow(graphicsVGA * graphicVGA, int off_x, int off_y, uint8_t cowColor) {
+        Window * cow = new Window();
+        cow -> fillRectangle(30 + off_x, 150 + off_y, graphicVGA, 45, 20, cowColor);
+        cow -> fillRectangle(35 + off_x, 170 + off_y, graphicVGA, 10, 12, cowColor);
+        cow -> fillRectangle(60 + off_x, 170 + off_y, graphicVGA, 10, 12, cowColor);
+        cow -> fillCircle(27 + off_x, 147 + off_y, graphicVGA, 10, cowColor);
+        cow -> drawOval(27 + off_x, 153 + off_y, graphicVGA, 15, 7, 0x3F);
+        cow -> fillCircle(23 + off_x, 144 + off_y, graphicVGA, 1, 0x3F);
+        cow -> fillCircle(31 + off_x, 144 + off_y, graphicVGA, 1, 0x3F);
+        cow -> fillCircle(21 + off_x, 153 + off_y, graphicVGA, 1, cowColor);
+        cow -> fillCircle(33 + off_x, 153 + off_y, graphicVGA, 1, cowColor);
+        cow -> fillCircle(20 + off_x, 137 + off_y, graphicVGA, 2, cowColor);
+        cow -> fillCircle(25 + off_x, 135 + off_y, graphicVGA, 2, 0x3F);
+        cow -> fillCircle(29 + off_x, 135 + off_y, graphicVGA, 2, 0x3F);
+        cow -> fillCircle(34 + off_x, 137 + off_y, graphicVGA, 2, cowColor);
+        cow -> fillCircle(58 + off_x, 170 + off_y, graphicVGA, 5, 0x05);
+        cow -> fillRectangle(75 + off_x, 150 + off_y, graphicVGA, 7, 3, cowColor);
+        cow -> fillRectangle(79 + off_x, 150 + off_y, graphicVGA, 3, 10, cowColor); 
+        cow -> fillCircle(80 + off_x, 160 + off_y, graphicVGA, 2, 0x3F);
+    }
+    void removeCow(graphicsVGA * graphicVGA, int off_x, int off_y) {
+        Window * cow = new Window();
+        cow -> fillRectangle(30 + off_x, 150 + off_y, graphicVGA, 45, 20, 0x11);
+        cow -> fillRectangle(35 + off_x, 170 + off_y, graphicVGA, 10, 12, 0x11);
+        cow -> fillRectangle(60 + off_x, 170 + off_y, graphicVGA, 10, 12,0x11);
+        cow -> fillCircle(27 + off_x, 147 + off_y, graphicVGA, 10, 0x11);
+        cow -> drawOval(27 + off_x, 153 + off_y, graphicVGA, 10, 7, 0x11);
+        cow -> fillCircle(23 + off_x, 144 + off_y, graphicVGA, 1, 0x11);
+        cow -> fillCircle(31 + off_x, 144 + off_y, graphicVGA, 1, 0x11);
+        cow -> fillCircle(21 + off_x, 153 + off_y, graphicVGA, 1, 0x11);
+        cow -> fillCircle(33 + off_x, 153 + off_y, graphicVGA, 1, 0x11);
+        cow -> fillCircle(20 + off_x, 137 + off_y, graphicVGA, 2, 0x11);
+        cow -> fillCircle(25 + off_x, 135 + off_y, graphicVGA, 2, 0x11);
+        cow -> fillCircle(29 + off_x, 135 + off_y, graphicVGA, 2, 0x11);
+        cow -> fillCircle(34 + off_x, 137 + off_y, graphicVGA, 2, 0x11);
+        cow -> fillCircle(58 + off_x, 170 + off_y, graphicVGA, 6, 0x11);
+        cow -> fillRectangle(75 + off_x, 150 + off_y, graphicVGA, 7, 3, 0x11);
+        cow -> fillRectangle(79 + off_x, 150 + off_y, graphicVGA, 3, 10, 0x11); 
+        cow -> fillCircle(80 + off_x, 160 + off_y, graphicVGA, 2, 0x11);
+    }
+};
 
 void kernelMain() {
     // outb(0x64, 0xAD);
@@ -111,15 +205,49 @@ void kernelMain() {
     //draw a rectangle on screen
     for(int32_t y = 0; y < 200; y++){
         for(int32_t x = 0; x < 320; x++){
-            graphicVGA -> putPixel(x, y, 0x00, 0x00, 0xA8);
+            graphicVGA -> putPixel(x, y, 0x11, 0x00, 0x00);
         }
     }
+
+        /*BACKGROUNDS */
+        /* LILAC BACKGROUND */
+        Window * background = new Window(); // vga, x, y
+        /* BLUE BACKGROUND*/
+        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x11); 
+
+    
+    /* GRASS */
+    Window * grass = new Window();
+    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02); // x, y, vga, width, height, colorindex
+
+    /* SUN */
+    Window * sun = new Window(); // vga, x, y
+    // sun -> fillRectangle(15, 15, graphicVGA, 50, 50, 0x16); // width, height, colorindex
+    sun->fillCircle(40, 40, graphicVGA, 25, 0x36);
+
+    /* CLOUD */
+    Cloud c{0, 0};
+    c.createCloud(graphicVGA, 0, 0);
+
+    /* COW */
+    Cow cow{};
+    int cowC = 0x3D;
+    cow.createCow(graphicVGA, 0, 0, cowC);
+
+        Window * barn = new Window();
+    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
 
     // waiting for input (polling)
     // FOLLOWS SCAN CODE 1 US QWERTY
     bool left_control_clicked = false;
     bool exit_terminal = false;
     int n = 1;
+    int cloud_offset = 0;
+    int cow_offset = 0;
     while (!exit_terminal) {
         while ((inb(0x64) & 0x1) == 0) {}
         int data = inb(0x60);
@@ -139,7 +267,7 @@ void kernelMain() {
         }
         case 0x30: {
             Debug::printf("b");
-            for(int32_t y = 0; y < 200; y++){
+            for(int32_t y = 0; y < 200; y++) {
                 for(int32_t x = 0; x < 320; x++){
                     graphicVGA -> putPixel(x, y, n, 0xC0, 0xCB);
                 }
@@ -226,14 +354,237 @@ void kernelMain() {
     }
      case 0x1f : {
         Debug::printf("s");
+        int sunset_val = 0;
+        switch(sunset_val) {
+            case 0:  {
+                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x14); 
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                sun->fillCircle(40, 55, graphicVGA, 25, 0x36);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+            }
+            case 1:  {
+                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x15);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                sun->fillCircle(40, 70, graphicVGA, 25, 0x36);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+            }
+            case 2:  {
+                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x31);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                sun->fillCircle(40, 85, graphicVGA, 25, 0x36);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+            }
+            case 3:  {
+                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x11); 
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                sun->fillCircle(40, 100, graphicVGA, 25, 0x36);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+            }
+            case 4:  {
+                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); 
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                sun->fillCircle(40, 115, graphicVGA, 25, 0x36);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                c.createCloud(graphicVGA, cloud_offset, 0);
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+            }
+            case 5: background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); 
+            case 6: {
+                /// ENDING SCREEN CODE ///
+        /* BACKGROUND */
+        Window * background = new Window(); // vga, x, y
+        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); // x, y, vga, width, height, colorindex
+
+        // letter C
+        Window * letterC = new Window();
+        letterC -> fillRectangle(0, 30, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+        letterC -> fillRectangle(0, 30, graphicVGA, 10, 30, 0x0F); // x, y, vga, width, height, colorindex
+        letterC -> fillRectangle(0, 60, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+
+        // letter O
+        Window * letterO = new Window();
+        letterO -> fillRectangle(40, 30, graphicVGA, 40, 40, 0x0F); // x, y, vga, width, height, colorindex
+        letterO -> fillRectangle(48, 38, graphicVGA, 23, 23, 0x00); // x, y, vga, width, height, colorindex
+
+        // letter N
+        Window * letterN = new Window();
+        letterN -> fillRectangle(90, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+        letterN -> fillRectangle(100, 40, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+        letterN -> fillRectangle(110, 50, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+        letterN -> fillRectangle(120, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+
+        // letter G
+        Window * letterG = new Window();
+        letterG -> fillRectangle(140, 30, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(140, 30, graphicVGA, 10, 30, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(140, 60, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(160, 50, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+
+        // letter R
+        letterG -> fillRectangle(180, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(180, 30, graphicVGA, 30, 20, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(189, 38, graphicVGA, 10, 10, 0x00); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(190, 50, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(200, 60, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+
+        // letter A
+        letterG -> fillRectangle(220, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(240, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(220, 30, graphicVGA, 20, 10, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(220, 50, graphicVGA, 20, 10, 0x0F); // x, y, vga, width, height, colorindex
+
+        // letter T
+        letterG -> fillRectangle(260, 30, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(270, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+
+        // letter S
+        letterG -> fillRectangle(295, 30, graphicVGA, 20, 40, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(305, 40, graphicVGA, 10, 10, 0x00); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(295, 50, graphicVGA, 10, 10, 0x00); // x, y, vga, width, height, colorindex
+
+        // letter O
+        letterO -> fillRectangle(20, 90, graphicVGA, 80, 80, 0x0F); // x, y, vga, width, height, colorindex
+        letterO -> fillRectangle(35, 100, graphicVGA, 50, 50, 0x00); // x, y, vga, width, height, colorindex
+
+        // letter S
+        letterG -> fillRectangle(120, 90, graphicVGA, 80, 80, 0x0F); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(150, 110, graphicVGA, 50, 10, 0x00); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(120, 140, graphicVGA, 50, 10, 0x00); // x, y, vga, width, height, colorindex
+
+        // check mark
+        letterG -> fillRectangle(220, 90, graphicVGA, 80, 80, 0x12); // x, y, vga, width, height, colorindex
+        letterG -> fillRectangle(220, 130, graphicVGA, 10, 10, 0x3F); 
+        letterG -> fillRectangle(230, 140, graphicVGA, 10, 10, 0x3F); 
+        letterG -> fillRectangle(240, 150, graphicVGA, 10, 10, 0x3F); 
+        letterG -> fillRectangle(250, 140, graphicVGA, 10, 10, 0x3F);
+        letterG -> fillRectangle(260, 130, graphicVGA, 10, 10, 0x3F);  
+        letterG -> fillRectangle(270, 120, graphicVGA, 10, 10, 0x3F);  
+        letterG -> fillRectangle(280, 110, graphicVGA, 10, 10, 0x3F);  
+        letterG -> fillRectangle(290, 100, graphicVGA, 10, 10, 0x3F);
+            }
+            default: break;
+        }
         break;
     }
     case 0x14 : {
-        Debug::printf("t");
+        // Debug::printf("t");
+        // create cloud
+        c.removeCloud(graphicVGA, cloud_offset, 0);
+        
+       
+        sun->fillCircle(40, 40, graphicVGA, 25, 0x36);
+        
+        cloud_offset+=3;
+        c.createCloud(graphicVGA, cloud_offset, 0);
+        
         break;
     }
     case 0x16 : {
-        Debug::printf("u");
+        // Debug::printf("u");
+        if (cow_offset == 152) {
+            break;
+        }
+        cow.removeCow(graphicVGA, cow_offset, 0); ////////////////////////// DEMO ///////////////////////////////////
+        grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+        Debug::printf("cow: %d ", cow_offset);
+        cow_offset-=4;
+        if (cow_offset == -16) {
+            cow_offset = 300;
+        } else if (cow_offset == 152) {
+            barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+            // barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+            // // Window * barnDoor = new Window();
+            barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+            barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+            barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+            break;
+        }
+        Debug::printf("%d\n", cow_offset);
+        cow.createCow(graphicVGA, cow_offset, 0, cowC);
         break;
     }
     case 0x2f : {
@@ -249,7 +600,16 @@ void kernelMain() {
         break;
     }
     case 0x15 : {
-        Debug::printf("y");
+        // Debug::printf("y");
+        // CHANGE COW COLORS
+        if (cowC != 0x14) {
+            cowC = 0x14;
+        } else {
+            cowC= 0x3D;
+        }
+        
+        cow.createCow(graphicVGA, cow_offset, 0, cowC);
+
         break;
     }
     case 0x2c : {

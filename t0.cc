@@ -76,9 +76,11 @@ void kernelMain() {
     cloudone->fillCircle(265, 70, graphicVGA, 9, 0x3F);
     cloudone->fillCircle(275, 75, graphicVGA, 11, 0x3F);
     
-    // COW
+    // COW 
+    /* FOR BURNT ORANGE: 0x14 */
     Window * cowbody = new Window();
-    cowbody -> fillRectangle(30, 150, graphicVGA, 45, 20, 0x3D);
+    uint8_t cowColor = 0x3D;
+    cowbody -> fillRectangle(30, 150, graphicVGA, 45, 20, cow);
 
     Window * cowlegone = new Window();
     cowlegone -> fillRectangle(35, 170, graphicVGA, 10, 12, 0x3D);
