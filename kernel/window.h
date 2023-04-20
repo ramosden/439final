@@ -13,9 +13,6 @@ public:
     graphicsVGA* vga;
     
     Window() {
-        // vga = vga_;
-        // x = x_;
-        // y = y_;
     }
     
     ~Window() {
@@ -92,6 +89,32 @@ public:
                 uint32_t dx = x - centerX;
                 uint32_t dy = y - centerY;
                 if (dx * dx + dy * dy <= radius * radius) {
+                    vga->putPixelIndex(x, y, colorIndex);
+                }
+            }
+        }
+    }
+
+
+    void drawOval(uint32_t centerX, uint32_t centerY, graphicsVGA* vga, uint32_t radiusX, uint32_t radiusY, uint8_t colorIndex) {
+        uint32_t xMin = centerX - radiusX;
+        uint32_t xMax = centerX + radiusX;
+        uint32_t yMin = centerY - radiusY;
+        uint32_t yMax = centerY + radiusY;
+
+        // uint32_t smallerRadius = std::min(radiusX, radiusY);
+        uint32_t smallerRadius = 0;
+        if(radiusX < radiusY){
+            smallerRadius = radiusX;
+        } else {
+            smallerRadius = radiusY;
+        }
+
+        for (uint32_t y = yMin; y <= yMax; y++) {
+            for (uint32_t x = xMin; x <= xMax; x++) {
+                uint32_t dx = x - centerX;
+                uint32_t dy = y - centerY;
+                if ((dx * dx * radiusY * radiusY) + (dy * dy * radiusX * radiusX) <= (smallerRadius * smallerRadius * radiusX * radiusY)) {
                     vga->putPixelIndex(x, y, colorIndex);
                 }
             }
