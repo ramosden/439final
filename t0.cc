@@ -45,8 +45,18 @@ void kernelMain() {
 
     // cloud # 1
     Window * cloudone = new Window();
-    cloudone -> fillRectangle(60, 20, graphicVGA, 70, 50, 0x3F);
+    cloudone -> fillRectangle(80, 50, graphicVGA, 40, 10, 0x3F);
     
+    Window * cloudone1 = new Window();
+    cloudone1 -> fillRectangle(150, 45, graphicVGA, 40, 10, 0x3F);
+
+    // Window * cloudtwo = new Window();
+    // cloudtwo -> fillRectangle();
+
+    // Window * cloudthree = new Window();
+    // cloudthree -> fillRectangle()
+
+
     // CLEAR SCREEN
     // if (input) {
     //     // for(int32_t y = 0; y < 200; y++){

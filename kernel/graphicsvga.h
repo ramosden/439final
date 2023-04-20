@@ -121,7 +121,7 @@ class graphicsVGA {
         }
     }
     void putPixelIndex(uint32_t x, uint32_t y, uint8_t colorIndex) {
-        uint8_t* pixelAddr = GetFrameBufferSegment() + 320*y + x;
+        uint8_t* pixelAddr = GetFrameBufferSegment() + 320 * y + x;
         *pixelAddr = colorIndex;
     }
     uint8_t getColorIndex(uint8_t r, uint8_t g, uint8_t b) {

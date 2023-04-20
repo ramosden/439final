@@ -11,7 +11,6 @@ public:
     uint32_t height;
     uint8_t color;
     graphicsVGA* vga;
-    uint32_t * buffer; //store pixel data for image
     
     Window() {
         // vga = vga_;
@@ -20,7 +19,6 @@ public:
     }
     
     ~Window() {
-        delete[] buffer;
         // delete vga;
     }
 
@@ -51,8 +49,8 @@ public:
     // }
     
     void fillRectangle(uint32_t x, uint32_t y, graphicsVGA * vga, uint32_t width, uint32_t height, uint8_t colorIndex) {
-        for(uint32_t h = y; h < height; h++){
-            for(uint32_t w = x; w < width; w++){
+        for(uint32_t h = y; h < height + y; h++){
+            for(uint32_t w = x; w < width + x; w++){
                 vga -> putPixelIndex(w, h, colorIndex);
             }
         }
