@@ -6,16 +6,17 @@
 #include "stdint.h"
 #include "kernel/vga.h"
 #include "init.h"
-// #include "kernel/graphicsvga.h"
 #include "kernel/window.h"
 
 /* INSTRUCTIONS 
 
+USE VNC VIEWER TO SEE PROGRAM
+
 KEY T - MOVE CLOUDS 
-KET U - MOVE COW
-KEY S - Sunset Animation
-
-
+KEY U - MOVE COW
+KEY Y - CHANGE COW COLOR
+KEY S - SUNSET ANIMATION
+CNTRL C - END PROGRAM
 */
 
 struct Cloud {
@@ -104,13 +105,14 @@ struct Cow {
 };
 
 void kernelMain() {
-    // outb(0x64, 0xAD);
-    // while ((int)(inb(0x64) & 0x1) == 0x1) {
-    // }
+    // PS/2 CHANNEL SET UP + FLUSHING 
+    outb(0x64, 0xAD);
+    while ((int)(inb(0x64) & 0x1) == 0x1) {
+    }
     
     // Debug::printf("controller disabled\n");
     // while((inb(0x64) & 0x2) != 0) {}
-    // outb(0x64, 0x20);
+    // outb(0x64, 0x20); 
     // while ((inb(0x64) & 1) != 1) {} // bit 0 must be set before reading
     // int controller_config_byte = inb(0x60);
     // Debug::printf("config value: %x\n", controller_config_byte);
@@ -119,14 +121,11 @@ void kernelMain() {
     // val = val & 0xFFFFFFFFFFFFFFBC;
     // bool has_dual_channel = false;
     // if ((int)(val & 0x20) > 0x0) {
-        // has_dual_channel = true;
+    //     has_dual_channel = true;
     // }
-    // Debug::printf("%d\n", has_dual_channel);
 
     // outb(0x60, val);
-    inb(0x60); // FLUSH OUTPUT BUFFER?
-
-    // Debug::printf("did osdev flushing\n");
+    inb(0x60); // FLUSH OUTPUT BUFFER
  
     // enable first port
     outb(0x64, 0xAE);
@@ -144,14 +143,11 @@ void kernelMain() {
 
     outb(0x64, 0xD4); // signal that we want to send a command to the second channel aka mouse
     int response = inb(0x60);
-    // while (response != 0xfa) {
-        // outb(0x60, 0xD4);
-        // response = inb(0x60);
+    while (response != 0xfa) { // WAIT FOR ACKOWLEDGEMENT
+        outb(0x60, 0xD4);
+        response = inb(0x60);
         Debug::printf("sent 0xD4 recieved: %x\n", response);
-    // }
-   
-
-    // Debug::printf("PS/2 controller initialization complete\n");
+    }
 
     // check for keyboard 
     outb(0x60, 0xF4); // enable data reporting
@@ -169,23 +165,8 @@ void kernelMain() {
     Debug::printf("keyboard ID 2 : %x\n", inb(0x60));
 
     Debug::printf("keyboard returned controller\n");
-
-    // while ((inb(0x64) & 0x2) != 0) {} // wait for cleared 1 bit
-    // outb(0x60, 0xEB); // requesting for mouse packet
-    // while ((inb(0x64) & 0x1) == 0) {} // wait for cleared 1 bit
-
-    // // recieved ack
-    // response = inb(0x60);
-    // while (response != 0xfa) {
-    //     response = inb(0x60);
-    //     // Debug::printf("%x\n", response);
-    // }
-    // auto packet_1 = inb(0x60);
-    // auto packet_2 = inb(0x60);
-    // auto packet_3 = inb(0x60);
-    // Debug::printf("packet 1: %x  packet 2: %x  packet 3: %x", packet_1, 
-    //     packet_2, packet_3);
   
+    // GRAHPICS, SET UP PORTS
     Ports miscPort{0x3C2};
         Ports crtcIndexPort{0x3D4};
         Ports crtcDataPort{0x3D5};
@@ -202,6 +183,7 @@ void kernelMain() {
     seqIndexPort, seqDataPort, graphicsCtrlIndexPort, graphicsCtrlDataPort,
     attrbCtrlIndexPort, attrbCtrlReadPort, attrbCtrlWritePort, attrbCtrlResetPort);
     graphicVGA -> setMode(320, 200, 8);
+
     //draw a rectangle on screen
     for(int32_t y = 0; y < 200; y++){
         for(int32_t x = 0; x < 320; x++){
@@ -209,11 +191,10 @@ void kernelMain() {
         }
     }
 
-        /*BACKGROUNDS */
-        /* LILAC BACKGROUND */
-        Window * background = new Window(); // vga, x, y
-        /* BLUE BACKGROUND*/
-        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x11); 
+    /*BACKGROUNDS */
+    Window * background = new Window(); // vga, x, y
+    /* BLUE BACKGROUND*/
+    background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x11); 
 
     
     /* GRASS */
@@ -234,7 +215,8 @@ void kernelMain() {
     int cowC = 0x3D;
     cow.createCow(graphicVGA, 0, 0, cowC);
 
-        Window * barn = new Window();
+    /* BARN */
+    Window * barn = new Window();
     barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
     barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
     barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
@@ -244,12 +226,13 @@ void kernelMain() {
     // waiting for input (polling)
     // FOLLOWS SCAN CODE 1 US QWERTY
     bool left_control_clicked = false;
-    bool exit_terminal = false;
+    bool exit_terminal = false; // CONTROL C TERMINATES 
     int n = 1;
     int cloud_offset = 0;
     int cow_offset = 0;
-    while (!exit_terminal) {
+    while (!exit_terminal) { 
         while ((inb(0x64) & 0x1) == 0) {}
+        // GATHER PACKETS OF DATA
         int data = inb(0x60);
         int data_2 = inb(0x60);
         int data_3 = inb(0x60);
@@ -259,577 +242,578 @@ void kernelMain() {
             isMouse = true;
         }
         if (!isMouse) {
-        switch (data)
-        {
-        case 0x1e: {
-            Debug::printf("a");
-            break;
-        }
-        case 0x30: {
-            Debug::printf("b");
-            for(int32_t y = 0; y < 200; y++) {
-                for(int32_t x = 0; x < 320; x++){
-                    graphicVGA -> putPixel(x, y, n, 0xC0, 0xCB);
+            switch (data)
+            {
+            case 0x1e: {
+                Debug::printf("a");
+                break;
+            }
+            case 0x30: {
+                Debug::printf("b");
+                for(int32_t y = 0; y < 200; y++) {
+                    for(int32_t x = 0; x < 320; x++){
+                        graphicVGA -> putPixel(x, y, n, 0xC0, 0xCB);
+                    }
                 }
+                if (n == 64) {
+                    n = 0;
+                }
+                n++;
+                break;
             }
-            if (n == 64) {
-                n = 0;
+            case 0x2e: {
+                if (left_control_clicked) {
+                    exit_terminal = true;
+                    Debug::printf("C\n");
+                } else {
+                    Debug::printf("c");
+                }
+                break;
             }
-            n++;
+            case 0x20: {
+                Debug::printf("d");
+                for(int32_t y = 0; y < 200; y++){
+                    for(int32_t x = 0; x < 320; x++){
+                        graphicVGA -> putPixel(x, y, 0x00, 0x00, 0xA8);
+                    }
+                }
+                break;
+            }
+            case 0x12: {
+                Debug::printf("e");
+                break;
+            }
+            case 0x21: {
+                Debug::printf("f");
+                break;
+            }
+            case 0x22: {
+                Debug::printf("g");
+                break;
+            }
+            case 0x23: {
+                Debug::printf("h");
+                break;
+            }
+            case 0x17: {
+                Debug::printf("i");
+                break;
+            }
+            case 0x24: {
+                Debug::printf("j");
+                break;
+            }
+            case 0x25: {
+                Debug::printf("k");
+                break;
+            }
+            case 0x26: {
+                Debug::printf("l");
+                break;
+            }
+            case 0x32: {
+                Debug::printf("m");
+                break;
+            }
+            case 0x31 : {
+            Debug::printf("n");
             break;
         }
-        case 0x2e: {
-            if (left_control_clicked) {
-                exit_terminal = true;
-                Debug::printf("C\n");
+        case 0x18 : {
+            Debug::printf("o");
+            break;
+        }
+        case 0x19 : {
+            Debug::printf("p");
+            break;
+        }
+        case 0x10 : {
+            Debug::printf("q");
+            break;
+        }
+        case 0x13 : {
+            Debug::printf("r");
+            break;
+        }
+        case 0x1f : {
+            Debug::printf("s");
+            int sunset_val = 0;
+            switch(sunset_val) {
+                case 0:  {
+                    background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x14); 
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                    sun->fillCircle(40, 55, graphicVGA, 25, 0x36);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                }
+                case 1:  {
+                    background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x15);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                    sun->fillCircle(40, 70, graphicVGA, 25, 0x36);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                }
+                case 2:  {
+                    background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x31);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                    sun->fillCircle(40, 85, graphicVGA, 25, 0x36);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                }
+                case 3:  {
+                    background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x11); 
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                    sun->fillCircle(40, 100, graphicVGA, 25, 0x36);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                }
+                case 4:  {
+                    background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); 
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
+                    sun->fillCircle(40, 115, graphicVGA, 25, 0x36);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                    c.createCloud(graphicVGA, cloud_offset, 0);
+                    grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                }
+                case 5: background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); 
+                case 6: {
+                    /// ENDING SCREEN CODE ///
+            /* BACKGROUND */
+            Window * background = new Window(); // vga, x, y
+            background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); // x, y, vga, width, height, colorindex
+
+            // letter C
+            Window * letterC = new Window();
+            letterC -> fillRectangle(0, 30, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+            letterC -> fillRectangle(0, 30, graphicVGA, 10, 30, 0x0F); // x, y, vga, width, height, colorindex
+            letterC -> fillRectangle(0, 60, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+
+            // letter O
+            Window * letterO = new Window();
+            letterO -> fillRectangle(40, 30, graphicVGA, 40, 40, 0x0F); // x, y, vga, width, height, colorindex
+            letterO -> fillRectangle(48, 38, graphicVGA, 23, 23, 0x00); // x, y, vga, width, height, colorindex
+
+            // letter N
+            Window * letterN = new Window();
+            letterN -> fillRectangle(90, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+            letterN -> fillRectangle(100, 40, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+            letterN -> fillRectangle(110, 50, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+            letterN -> fillRectangle(120, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+
+            // letter G
+            Window * letterG = new Window();
+            letterG -> fillRectangle(140, 30, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(140, 30, graphicVGA, 10, 30, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(140, 60, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(160, 50, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+
+            // letter R
+            letterG -> fillRectangle(180, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(180, 30, graphicVGA, 30, 20, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(189, 38, graphicVGA, 10, 10, 0x00); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(190, 50, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(200, 60, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
+
+            // letter A
+            letterG -> fillRectangle(220, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(240, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(220, 30, graphicVGA, 20, 10, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(220, 50, graphicVGA, 20, 10, 0x0F); // x, y, vga, width, height, colorindex
+
+            // letter T
+            letterG -> fillRectangle(260, 30, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(270, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
+
+            // letter S
+            letterG -> fillRectangle(295, 30, graphicVGA, 20, 40, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(305, 40, graphicVGA, 10, 10, 0x00); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(295, 50, graphicVGA, 10, 10, 0x00); // x, y, vga, width, height, colorindex
+
+            // letter O
+            letterO -> fillRectangle(20, 90, graphicVGA, 80, 80, 0x0F); // x, y, vga, width, height, colorindex
+            letterO -> fillRectangle(35, 100, graphicVGA, 50, 50, 0x00); // x, y, vga, width, height, colorindex
+
+            // letter S
+            letterG -> fillRectangle(120, 90, graphicVGA, 80, 80, 0x0F); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(150, 110, graphicVGA, 50, 10, 0x00); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(120, 140, graphicVGA, 50, 10, 0x00); // x, y, vga, width, height, colorindex
+
+            // check mark
+            letterG -> fillRectangle(220, 90, graphicVGA, 80, 80, 0x12); // x, y, vga, width, height, colorindex
+            letterG -> fillRectangle(220, 130, graphicVGA, 10, 10, 0x3F); 
+            letterG -> fillRectangle(230, 140, graphicVGA, 10, 10, 0x3F); 
+            letterG -> fillRectangle(240, 150, graphicVGA, 10, 10, 0x3F); 
+            letterG -> fillRectangle(250, 140, graphicVGA, 10, 10, 0x3F);
+            letterG -> fillRectangle(260, 130, graphicVGA, 10, 10, 0x3F);  
+            letterG -> fillRectangle(270, 120, graphicVGA, 10, 10, 0x3F);  
+            letterG -> fillRectangle(280, 110, graphicVGA, 10, 10, 0x3F);  
+            letterG -> fillRectangle(290, 100, graphicVGA, 10, 10, 0x3F);
+                }
+                default: break;
+            }
+            break;
+        }
+        case 0x14 : {
+            // Debug::printf("t");
+            // create cloud
+            c.removeCloud(graphicVGA, cloud_offset, 0);
+            
+        
+            sun->fillCircle(40, 40, graphicVGA, 25, 0x36);
+            
+            cloud_offset+=3;
+            c.createCloud(graphicVGA, cloud_offset, 0);
+            
+            break;
+        }
+        case 0x16 : {
+            // Debug::printf("u");
+            if (cow_offset == 152) {
+                break;
+            }
+            ////////////////////////// DEMO ///////////////////////////////////
+            cow.removeCow(graphicVGA, cow_offset, 0); 
+            grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+            Debug::printf("cow: %d ", cow_offset);
+            cow_offset-=4;
+            if (cow_offset == -16) {
+                cow_offset = 300;
+            } else if (cow_offset == 152) {
+                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                // barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                // // Window * barnDoor = new Window();
+                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                break;
+            }
+            Debug::printf("%d\n", cow_offset);
+            cow.createCow(graphicVGA, cow_offset, 0, cowC);
+            break;
+        }
+        case 0x2f : {
+            Debug::printf("v");
+            break;
+        }
+        case 0x11 : {
+            Debug::printf("w");
+            break;
+        }
+        case 0x2d : {
+            Debug::printf("x");
+            break;
+        }
+        case 0x15 : {
+            Debug::printf("y");
+            // CHANGE COW COLORS
+            if (cowC != 0x14) {
+                cowC = 0x14;
             } else {
-                Debug::printf("c");
+                cowC= 0x3D;
             }
+            
+            cow.createCow(graphicVGA, cow_offset, 0, cowC);
+
             break;
         }
-        case 0x20: {
-            Debug::printf("d");
-            for(int32_t y = 0; y < 200; y++){
-                for(int32_t x = 0; x < 320; x++){
-                    graphicVGA -> putPixel(x, y, 0x00, 0x00, 0xA8);
-                }
-            }
+        case 0x2c : {
+            Debug::printf("z");
             break;
         }
-        case 0x12: {
-            Debug::printf("e");
+        case 0x0c : {
+            Debug::printf("-");
             break;
         }
-        case 0x21: {
-            Debug::printf("f");
+        case 0x04 : {
+            Debug::printf("3");
             break;
         }
-        case 0x22: {
-            Debug::printf("g");
+        case 0x08 : {
+            // Debug::printf("CLICK UP\n");
+            Debug::printf("7");
             break;
         }
-        case 0x23: {
-            Debug::printf("h");
+        case 0x1c : {
+            Debug::printf("\n");
             break;
         }
-        case 0x17: {
-            Debug::printf("i");
+        case 0x28 : {
+            Debug::printf("'");
             break;
         }
-        case 0x24: {
-            Debug::printf("j");
+        case 0x34 : {
+            Debug::printf(".");
             break;
         }
-        case 0x25: {
-            Debug::printf("k");
+        case 0x38 : {
+            Debug::printf("\nleft alt\n");
             break;
         }
-        case 0x26: {
-            Debug::printf("l");
+        case 0x3c : {
+            Debug::printf("\nf2\n");
             break;
         }
-        case 0x32: {
-            Debug::printf("m");
+        case 0x40 : {
+            Debug::printf("\nf6\n");
             break;
         }
-        case 0x31 : {
-        Debug::printf("n");
-        break;
+        case 0x44 : {
+            Debug::printf("\nf10\n");
+            break;
+        }
+        case 0x48 : {
+            Debug::printf("case 0x48");
+            Debug::printf("8");
+            break;
+        }
+        case 0x4c : {
+            Debug::printf("5");
+            break;
+        }
+        case 0x50 : {
+            Debug::printf("2");
+            break;
+        }
+        case 0x01 : {
+            Debug::printf("\n espace\n");
+            break;
+        }
+        case 0x05 : {
+            Debug::printf("4");
+            break;
+        }
+        case 0x09 : {
+            // Debug::printf("\nCLICK DOWN\n");
+            Debug::printf("8");
+            break;
+        }
+        case 0x0D : {
+            Debug::printf("=");
+            break;
+        }
+        case 0x1D : {
+            Debug::printf("^");
+            left_control_clicked = true;
+            break;
+        }
+        case 0x35 : {
+            Debug::printf("/");
+            break;
+        }
+        case 0x39 : {
+            Debug::printf(" ");
+            break;
+        }
+        case 0x3D : {
+            Debug::printf("\nF3\n");
+            break;
+        }
+        case 0x41 : {
+            Debug::printf("\nF7\n");
+            break;
+        }
+        case 0x45 : {
+            Debug::printf("\nnumber locked\n");
+            break;
+        }
+        case 0x49 : {
+            Debug::printf("9");
+            break;
+        }
+        case 0x4D : {
+            Debug::printf("6");
+            break;
+        }
+        case 0x51 : {
+            Debug::printf("4");
+            break;
+        }
+        case 0x0B : {
+            Debug::printf("0");
+            break;
+        }
+        case 0x02 : {
+            Debug::printf("1");
+            break;
+        }
+        case 0x03 : {
+            Debug::printf("2");
+            break;
+        }
+        case 0x06 : {
+            Debug::printf("5");
+            break;
+        }
+        case 0x07 : {
+            Debug::printf("6");
+            break;
+        }
+        case 0x0A : {
+            Debug::printf("case 0x0A");
+            Debug::printf("9");
+            break;
+        }
+        case 0x0E : {
+            Debug::printf("backspace");
+            break;
+        }
+        case 0x0F : {
+            Debug::printf("tab");
+            break;
+        }
+        case 0x1A : {
+            Debug::printf("[");
+            break;
+        }
+        case 0x1B : {
+            Debug::printf("]");
+            break;
+        }
+        case 0x27 : {
+            Debug::printf(";");
+            break;
+        }
+        case 0x2A : {
+            Debug::printf("left shift");
+            break;
+        }
+        case 0x2B : {
+            Debug::printf("'\'");
+            break;
+        }
+        case 0x33 : {
+            Debug::printf(",");
+            break;
+        }
+        case 0x36 : {
+            Debug::printf("right shift");
+            break;
+        }
+        case 0x3A : {
+            Debug::printf("capslock");
+            break;
+        }
+        case 0x3B : {
+            Debug::printf("f1");
+            break;
+        }
+        case 0x3E : {
+            Debug::printf("f4");
+            break;
+        }
+        case 0x3F : {
+            Debug::printf("f5");
+            break;
+        }
+        case 0x42 : {
+            Debug::printf("f8");
+            break;
+        }
+        case 0x43 : {
+            Debug::printf("f9");
+            break;
+        }
+        case 0x57 : {
+            Debug::printf("f11");
+            break;
+        }
+
+        default:
+            // Debug::printf("recieved polling data: %x \n", data);
+            break;
+        }
     }
-    case 0x18 : {
-        Debug::printf("o");
-        break;
-    }
-    case 0x19 : {
-        Debug::printf("p");
-        break;
-    }
-    case 0x10 : {
-        Debug::printf("q");
-        break;
-    }
-    case 0x13 : {
-        Debug::printf("r");
-        break;
-    }
-     case 0x1f : {
-        Debug::printf("s");
-        int sunset_val = 0;
-        switch(sunset_val) {
-            case 0:  {
-                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x14); 
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
-                sun->fillCircle(40, 55, graphicVGA, 25, 0x36);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-            }
-            case 1:  {
-                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x15);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
-                sun->fillCircle(40, 70, graphicVGA, 25, 0x36);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-            }
-            case 2:  {
-                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x31);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
-                sun->fillCircle(40, 85, graphicVGA, 25, 0x36);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-            }
-            case 3:  {
-                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x11); 
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
-                sun->fillCircle(40, 100, graphicVGA, 25, 0x36);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
-            }
-            case 4:  {
-                background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); 
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F); 
-                sun->fillCircle(40, 115, graphicVGA, 25, 0x36);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-                c.createCloud(graphicVGA, cloud_offset, 0);
-                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-                barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-                barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-                barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-                barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-            }
-            case 5: background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); 
-            case 6: {
-                /// ENDING SCREEN CODE ///
-        /* BACKGROUND */
-        Window * background = new Window(); // vga, x, y
-        background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); // x, y, vga, width, height, colorindex
-
-        // letter C
-        Window * letterC = new Window();
-        letterC -> fillRectangle(0, 30, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
-        letterC -> fillRectangle(0, 30, graphicVGA, 10, 30, 0x0F); // x, y, vga, width, height, colorindex
-        letterC -> fillRectangle(0, 60, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
-
-        // letter O
-        Window * letterO = new Window();
-        letterO -> fillRectangle(40, 30, graphicVGA, 40, 40, 0x0F); // x, y, vga, width, height, colorindex
-        letterO -> fillRectangle(48, 38, graphicVGA, 23, 23, 0x00); // x, y, vga, width, height, colorindex
-
-        // letter N
-        Window * letterN = new Window();
-        letterN -> fillRectangle(90, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
-        letterN -> fillRectangle(100, 40, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
-        letterN -> fillRectangle(110, 50, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
-        letterN -> fillRectangle(120, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
-
-        // letter G
-        Window * letterG = new Window();
-        letterG -> fillRectangle(140, 30, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(140, 30, graphicVGA, 10, 30, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(140, 60, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(160, 50, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
-
-        // letter R
-        letterG -> fillRectangle(180, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(180, 30, graphicVGA, 30, 20, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(189, 38, graphicVGA, 10, 10, 0x00); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(190, 50, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(200, 60, graphicVGA, 10, 10, 0x0F); // x, y, vga, width, height, colorindex
-
-        // letter A
-        letterG -> fillRectangle(220, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(240, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(220, 30, graphicVGA, 20, 10, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(220, 50, graphicVGA, 20, 10, 0x0F); // x, y, vga, width, height, colorindex
-
-        // letter T
-        letterG -> fillRectangle(260, 30, graphicVGA, 30, 10, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(270, 30, graphicVGA, 10, 40, 0x0F); // x, y, vga, width, height, colorindex
-
-        // letter S
-        letterG -> fillRectangle(295, 30, graphicVGA, 20, 40, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(305, 40, graphicVGA, 10, 10, 0x00); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(295, 50, graphicVGA, 10, 10, 0x00); // x, y, vga, width, height, colorindex
-
-        // letter O
-        letterO -> fillRectangle(20, 90, graphicVGA, 80, 80, 0x0F); // x, y, vga, width, height, colorindex
-        letterO -> fillRectangle(35, 100, graphicVGA, 50, 50, 0x00); // x, y, vga, width, height, colorindex
-
-        // letter S
-        letterG -> fillRectangle(120, 90, graphicVGA, 80, 80, 0x0F); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(150, 110, graphicVGA, 50, 10, 0x00); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(120, 140, graphicVGA, 50, 10, 0x00); // x, y, vga, width, height, colorindex
-
-        // check mark
-        letterG -> fillRectangle(220, 90, graphicVGA, 80, 80, 0x12); // x, y, vga, width, height, colorindex
-        letterG -> fillRectangle(220, 130, graphicVGA, 10, 10, 0x3F); 
-        letterG -> fillRectangle(230, 140, graphicVGA, 10, 10, 0x3F); 
-        letterG -> fillRectangle(240, 150, graphicVGA, 10, 10, 0x3F); 
-        letterG -> fillRectangle(250, 140, graphicVGA, 10, 10, 0x3F);
-        letterG -> fillRectangle(260, 130, graphicVGA, 10, 10, 0x3F);  
-        letterG -> fillRectangle(270, 120, graphicVGA, 10, 10, 0x3F);  
-        letterG -> fillRectangle(280, 110, graphicVGA, 10, 10, 0x3F);  
-        letterG -> fillRectangle(290, 100, graphicVGA, 10, 10, 0x3F);
-            }
-            default: break;
-        }
-        break;
-    }
-    case 0x14 : {
-        // Debug::printf("t");
-        // create cloud
-        c.removeCloud(graphicVGA, cloud_offset, 0);
+    else { // IDENTIFIED MOUSE
         
-       
-        sun->fillCircle(40, 40, graphicVGA, 25, 0x36);
-        
-        cloud_offset+=3;
-        c.createCloud(graphicVGA, cloud_offset, 0);
-        
-        break;
-    }
-    case 0x16 : {
-        // Debug::printf("u");
-        if (cow_offset == 152) {
-            break;
-        }
-        cow.removeCow(graphicVGA, cow_offset, 0); ////////////////////////// DEMO ///////////////////////////////////
-        grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
-        Debug::printf("cow: %d ", cow_offset);
-        cow_offset-=4;
-        if (cow_offset == -16) {
-            cow_offset = 300;
-        } else if (cow_offset == 152) {
-            barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
-            // barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
-            // // Window * barnDoor = new Window();
-            barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
-            barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
-            barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
-            break;
-        }
-        Debug::printf("%d\n", cow_offset);
-        cow.createCow(graphicVGA, cow_offset, 0, cowC);
-        break;
-    }
-    case 0x2f : {
-        Debug::printf("v");
-        break;
-    }
-    case 0x11 : {
-        Debug::printf("w");
-        break;
-    }
-    case 0x2d : {
-        Debug::printf("x");
-        break;
-    }
-    case 0x15 : {
-        // Debug::printf("y");
-        // CHANGE COW COLORS
-        if (cowC != 0x14) {
-            cowC = 0x14;
-        } else {
-            cowC= 0x3D;
-        }
-        
-        cow.createCow(graphicVGA, cow_offset, 0, cowC);
-
-        break;
-    }
-    case 0x2c : {
-        Debug::printf("z");
-        break;
-    }
-    case 0x0c : {
-        Debug::printf("-");
-        break;
-    }
-    case 0x04 : {
-        Debug::printf("3");
-        break;
-    }
-    case 0x08 : {
-        Debug::printf("CLICK UP\n");
-        // Debug::printf("7");
-        break;
-    }
-    case 0x1c : {
-        Debug::printf("\n");
-        break;
-    }
-    case 0x28 : {
-        Debug::printf("'");
-        break;
-    }
-    case 0x34 : {
-        Debug::printf(".");
-        break;
-    }
-    case 0x38 : {
-        Debug::printf("\nleft alt\n");
-        break;
-    }
-    case 0x3c : {
-        Debug::printf("\nf2\n");
-        break;
-    }
-    case 0x40 : {
-        Debug::printf("\nf6\n");
-        break;
-    }
-    case 0x44 : {
-        Debug::printf("\nf10\n");
-        break;
-    }
-    case 0x48 : {
-        Debug::printf("case 0x48");
-        Debug::printf("8");
-        break;
-    }
-    case 0x4c : {
-        Debug::printf("5");
-        break;
-    }
-    case 0x50 : {
-        Debug::printf("2");
-        break;
-    }
-    case 0x01 : {
-        Debug::printf("\n espace\n");
-        break;
-    }
-    case 0x05 : {
-        Debug::printf("4");
-        break;
-    }
-    case 0x09 : {
-        Debug::printf("\nCLICK DOWN\n");
-        // Debug::printf("8");
-        break;
-    }
-    case 0x0D : {
-        Debug::printf("=");
-        break;
-    }
-    case 0x1D : {
-        Debug::printf("^");
-        left_control_clicked = true;
-        break;
-    }
-    case 0x35 : {
-        Debug::printf("/");
-        break;
-    }
-    case 0x39 : {
-        Debug::printf(" ");
-        break;
-    }
-    case 0x3D : {
-        Debug::printf("\nF3\n");
-        break;
-    }
-    case 0x41 : {
-        Debug::printf("\nF7\n");
-        break;
-    }
-    case 0x45 : {
-         Debug::printf("\nnumber locked\n");
-        break;
-    }
-    case 0x49 : {
-        Debug::printf("9");
-        break;
-    }
-    case 0x4D : {
-        Debug::printf("6");
-        break;
-    }
-    case 0x51 : {
-        Debug::printf("4");
-        break;
-    }
-    case 0x0B : {
-        Debug::printf("0");
-        break;
-    }
-    case 0x02 : {
-        Debug::printf("1");
-        break;
-    }
-    case 0x03 : {
-        Debug::printf("2");
-        break;
-    }
-    case 0x06 : {
-        Debug::printf("5");
-        break;
-    }
-    case 0x07 : {
-        Debug::printf("6");
-        break;
-    }
-    case 0x0A : {
-        Debug::printf("case 0x0A");
-        Debug::printf("9");
-        break;
-    }
-    case 0x0E : {
-        Debug::printf("backspace");
-        break;
-    }
-    case 0x0F : {
-        Debug::printf("tab");
-        break;
-    }
-    case 0x1A : {
-        Debug::printf("[");
-        break;
-    }
-    case 0x1B : {
-        Debug::printf("]");
-        break;
-    }
-    case 0x27 : {
-        Debug::printf(";");
-        break;
-    }
-    case 0x2A : {
-        Debug::printf("left shift");
-        break;
-    }
-    case 0x2B : {
-        Debug::printf("'\'");
-        break;
-    }
-    case 0x33 : {
-        Debug::printf(",");
-        break;
-    }
-    case 0x36 : {
-        Debug::printf("right shift");
-        break;
-    }
-    case 0x3A : {
-        Debug::printf("capslock");
-        break;
-    }
-    case 0x3B : {
-        Debug::printf("f1");
-        break;
-    }
-    case 0x3E : {
-        Debug::printf("f4");
-        break;
-    }
-    case 0x3F : {
-        Debug::printf("f5");
-        break;
-    }
-    case 0x42 : {
-        Debug::printf("f8");
-        break;
-    }
-    case 0x43 : {
-        Debug::printf("f9");
-        break;
-    }
-    case 0x57 : {
-        Debug::printf("f11");
-        break;
-    }
-
-    default:
-        // Debug::printf("recieved polling data: %x \n", data);
-        break;
-    }
-    }
-    else {
-        // is mouse!
         // Debug::printf("MOUSE DATA\n");
          //Debug::printf("datas: %x %x %x %x\n", data, data_2, data_3, data_4);
-            if (data == 0x18 && data_2 == 0xff && data_3 == 0x0 && data_4 == 0x41) {
+            if (data_2 == 0xff && data_3 == 0x0) {
                 Debug::printf("mouse moving left\n");
-            } else if (data == 0x08 && data_2 == 0x01 && data_3 == 0x0 && data_4 == 0x41) {
+            } else if (data_2 == 0x01 && data_3 == 0x0) {
                 Debug::printf("mouse moving right\n");
-            } else if (data == 0x08 && data_2 == 0x0 && data_3 == 0x01 && data_4 == 0x41) {
+            } else if (data_2 == 0x0 && data_3 == 0x01) {
                 Debug::printf("mouse moving up\n");
-            } else if (data == 0x28 && data_2 == 0x0 && data_3 == 0xff && data_4 == 0x41) {
+            } else if (data_2 == 0x0 && data_3 == 0xff) {
                 Debug::printf("mouse moving down\n");
             } else if (data == 0x9) {
                 Debug::printf("mouse left click down\n");
@@ -837,6 +821,6 @@ void kernelMain() {
                 Debug::printf("mouse right click down\n");
             }
         
-    }
+        }
     }
 }
