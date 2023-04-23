@@ -1,7 +1,4 @@
-#include "debug.h"
-#include "stdint.h"
 #include "kernel/machine.h"
-
 #include "debug.h"
 #include "stdint.h"
 #include "kernel/vga.h"
@@ -19,13 +16,13 @@ KEY S - SUNSET ANIMATION
 CNTRL C - END PROGRAM
 */
 
+/* struct made by huyen so that making clouds is easier,  cloud itself made by gui group */
 struct Cloud {
     int offset_x;
     int offset_y;
     Cloud(int off_x, int off_y) : offset_x(off_x), offset_y(off_y) {}
 
     void createCloud(graphicsVGA * graphicVGA, int off_x, int off_y) {
-           // clouds
         Window * cloudone = new Window();
         cloudone->fillCircle(60 + off_x, 50 + off_y, graphicVGA, 15, 0x3F);
         cloudone->fillCircle(70 + off_x, 55 + off_y, graphicVGA, 15, 0x3F);
@@ -60,7 +57,7 @@ struct Cloud {
         cloudone->fillCircle(275 + off_x, 75 + off_y, graphicVGA, 11, 0x11);
     }
 };
-
+/* struct made by huyen so that making a cow is easier,  cow itself made by gui group */
 struct Cow {
     void createCow(graphicsVGA * graphicVGA, int off_x, int off_y, uint8_t cowColor) {
         Window * cow = new Window();
@@ -106,10 +103,12 @@ struct Cow {
 
 void kernelMain() {
     // PS/2 CHANNEL SET UP + FLUSHING 
+    /* PAIR PROGRAMMING  - START */
     outb(0x64, 0xAD);
     while ((int)(inb(0x64) & 0x1) == 0x1) {
     }
     
+
     // Debug::printf("controller disabled\n");
     // while((inb(0x64) & 0x2) != 0) {}
     // outb(0x64, 0x20); 
@@ -157,7 +156,9 @@ void kernelMain() {
         response = inb(0x60);
         Debug::printf("sent 0xF4 recieved: %x\n", response);
     }
+    /* PAIR PROGRAMMING  - END */
 
+    /* code by huyen to verify device  */
     outb(0x60, 0xF2); // get keyboard ID
     while(!(inb(0x64) & 1)) {} // wait until we can read
     Debug::printf("keyboard ID 0 : %x\n", inb(0x60));
@@ -166,7 +167,7 @@ void kernelMain() {
 
     Debug::printf("keyboard returned controller\n");
   
-    // GRAHPICS, SET UP PORTS
+    /* SETUP GRAPHICS & GRAPHICS PORTS, CODE FROM GUI GROUP */
     Ports miscPort{0x3C2};
         Ports crtcIndexPort{0x3D4};
         Ports crtcDataPort{0x3D5};
@@ -223,7 +224,8 @@ void kernelMain() {
     barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
     barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
 
-    // waiting for input (polling)
+
+    /* POLLING DATA - PAIR PROGRAMMING + INDIVIDUAL CODING */
     // FOLLOWS SCAN CODE 1 US QWERTY
     bool left_control_clicked = false;
     bool exit_terminal = false; // CONTROL C TERMINATES 
@@ -232,7 +234,7 @@ void kernelMain() {
     int cow_offset = 0;
     while (!exit_terminal) { 
         while ((inb(0x64) & 0x1) == 0) {}
-        // GATHER PACKETS OF DATA
+        /* GATHER PACKETS OF DATA & DIFFERENTIATE DEVICE - HUYEN */
         int data = inb(0x60);
         int data_2 = inb(0x60);
         int data_3 = inb(0x60);
@@ -241,7 +243,7 @@ void kernelMain() {
         if (data != data_2 && data_3 != data_4) {
             isMouse = true;
         }
-        if (!isMouse) {
+        if (!isMouse) { // KEYBOARD CASES - PAIR PROGAMMING
             switch (data)
             {
             case 0x1e: {
@@ -249,6 +251,7 @@ void kernelMain() {
                 break;
             }
             case 0x30: {
+                /* CHANGES COLOR OF SCREEN - HUYEN */
                 Debug::printf("b");
                 for(int32_t y = 0; y < 200; y++) {
                     for(int32_t x = 0; x < 320; x++){
@@ -262,6 +265,7 @@ void kernelMain() {
                 break;
             }
             case 0x2e: {
+                /* TERMINATES KEYBOARD - PAIR PROGAMMING */
                 if (left_control_clicked) {
                     exit_terminal = true;
                     Debug::printf("C\n");
@@ -271,6 +275,7 @@ void kernelMain() {
                 break;
             }
             case 0x20: {
+                /* RETURNS SCREEN TO BLUE - PAIR PROGRAMMING */
                 Debug::printf("d");
                 for(int32_t y = 0; y < 200; y++){
                     for(int32_t x = 0; x < 320; x++){
@@ -338,6 +343,8 @@ void kernelMain() {
         case 0x1f : {
             Debug::printf("s");
             int sunset_val = 0;
+            /* ANIMATION (CASE 1-5) - HUYEN 
+               FINAL MESSAGE (CASE 6) - TESNA */
             switch(sunset_val) {
                 case 0:  {
                     background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x14); 
@@ -456,9 +463,9 @@ void kernelMain() {
                     barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
                 }
                 case 5: background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); 
+
+                /* FINAL MESSAGE OF ANIMATION - TESNA */
                 case 6: {
-                    /// ENDING SCREEN CODE ///
-            /* BACKGROUND */
             Window * background = new Window(); // vga, x, y
             background -> fillRectangle(0, 0, graphicVGA, 320, 200, 0x00); // x, y, vga, width, height, colorindex
 
@@ -533,25 +540,20 @@ void kernelMain() {
             }
             break;
         }
-        case 0x14 : {
-            // Debug::printf("t");
-            // create cloud
+        case 0x14 : { /* MOVE CLOUDS ON T KEY - HUYEN */
+            Debug::printf("t");
             c.removeCloud(graphicVGA, cloud_offset, 0);
-            
-        
             sun->fillCircle(40, 40, graphicVGA, 25, 0x36);
-            
             cloud_offset+=3;
             c.createCloud(graphicVGA, cloud_offset, 0);
             
             break;
         }
-        case 0x16 : {
-            // Debug::printf("u");
+        case 0x16 : { /* MOVE COW, WRAP AROUND COW, COW ENTERS BARN - HUYEN */
+            Debug::printf("u");
             if (cow_offset == 152) {
                 break;
             }
-            ////////////////////////// DEMO ///////////////////////////////////
             cow.removeCow(graphicVGA, cow_offset, 0); 
             grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
             Debug::printf("cow: %d ", cow_offset);
@@ -583,19 +585,17 @@ void kernelMain() {
             Debug::printf("x");
             break;
         }
-        case 0x15 : {
+        case 0x15 : { /* CHANGE COW COLORS - HUYEN */
             Debug::printf("y");
-            // CHANGE COW COLORS
-            if (cowC != 0x14) {
+              if (cowC != 0x14) {
                 cowC = 0x14;
             } else {
                 cowC= 0x3D;
             }
-            
             cow.createCow(graphicVGA, cow_offset, 0, cowC);
-
             break;
         }
+        /* REST OF CASES - TESNA */
         case 0x2c : {
             Debug::printf("z");
             break;
@@ -642,7 +642,6 @@ void kernelMain() {
             break;
         }
         case 0x48 : {
-            Debug::printf("case 0x48");
             Debug::printf("8");
             break;
         }
@@ -797,14 +796,13 @@ void kernelMain() {
             Debug::printf("f11");
             break;
         }
-
         default:
             // Debug::printf("recieved polling data: %x \n", data);
             break;
         }
     }
-    else { // IDENTIFIED MOUSE
-        
+    /* MOUSE CASES & ALL MOUSE INTEGRATION - TESNA */
+    else {
         // Debug::printf("MOUSE DATA\n");
          //Debug::printf("datas: %x %x %x %x\n", data, data_2, data_3, data_4);
             if (data_2 == 0xff && data_3 == 0x0) {
@@ -820,7 +818,6 @@ void kernelMain() {
             } else if (data == 0xa) {
                 Debug::printf("mouse right click down\n");
             }
-        
         }
     }
 }
