@@ -2,6 +2,8 @@
 #include "stdint.h"
 #include "ports.h"
 
+//Pair programmed and switched off (Katherine, Elin, and Denise)
+
 class Window {
 public:
 
@@ -19,6 +21,8 @@ public:
         // delete vga;
     }
 
+    /* This is our attempt at creating a window with elements (title bar, title text, contents).
+    We ended up pivoting and choosing to expand more on our graphics capabilities.*/
     // void draw_window() {
     //     // WINDOW BORDER
     //     // drawRectangle(x, y, width, height, 0xA7); // white color
@@ -33,6 +37,8 @@ public:
     //     // drawRectangle(x+2, y+22, width-4, height-24, 0x17); // light gray color
     // }
     
+
+    //draws just the outline of a rectangle, inside is not filled in 
     void drawRectangle(uint32_t x, uint32_t y, graphicsVGA* vga, uint32_t width, uint32_t height, uint8_t colorIndex) {
         // loop through each pixel in the rectangle
         for (uint32_t i = x; i < x + width; i++) {
@@ -58,6 +64,7 @@ public:
         }
     }
     
+    //draws a filled up rectangle 
     void fillRectangle(uint32_t x, uint32_t y, graphicsVGA * vga, uint32_t width, uint32_t height, uint8_t colorIndex) {
         for(uint32_t h = y; h < height + y; h++){
             for(uint32_t w = x; w < width + x; w++){
@@ -102,7 +109,7 @@ public:
         uint32_t yMin = centerY - radiusY;
         uint32_t yMax = centerY + radiusY;
 
-        // uint32_t smallerRadius = std::min(radiusX, radiusY);
+        // Compare radius for oval calculations
         uint32_t smallerRadius = 0;
         if(radiusX < radiusY){
             smallerRadius = radiusX;
@@ -110,6 +117,7 @@ public:
             smallerRadius = radiusY;
         }
 
+        //draw actual oval
         for (uint32_t y = yMin; y <= yMax; y++) {
             for (uint32_t x = xMin; x <= xMax; x++) {
                 uint32_t dx = x - centerX;
@@ -120,8 +128,5 @@ public:
             }
         }
     }
-
-
-
 
 };

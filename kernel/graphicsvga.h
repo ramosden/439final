@@ -2,7 +2,15 @@
 #include "machine.h"
 #include "ports.h"
 
+/*This class sets up the VGA display mode to be graphics mode. It also 
+has helper methods such as putPixel to draw pixels of the selected color
+at the specified location in the video memory. 
 
+We also pair programmed this class and switched off. (Katherine, Elin, Denise)
+
+Sources: https://wiki.osdev.org/VGA_Hardware and https://files.osdev.org/mirrors/geezer/osd/graphics/index.htm#vga
+
+*/
 class graphicsVGA {
     public:
         Ports miscPort{0x3C2};
@@ -33,6 +41,8 @@ class graphicsVGA {
 
         ~graphicsVGA() {}
 
+
+    //Writes correct values to hardware (interfaces with the VGA ports), sets port values
     void writeRegisters(uint8_t * registers) {
         // misc regs
         miscPort.write(*(registers++));
@@ -69,18 +79,17 @@ class graphicsVGA {
             attrbCtrlIndexPort.write(i);
             attrbCtrlWritePort.write(*(registers++));
         }
-
         attrbCtrlResetPort.read();
         attrbCtrlIndexPort.write(0x20);
     }
 
-    //graphics mode: set video mode value to 0x13, 320x200 pixels with 256 colors
+    //Graphics mode: set video mode value to 0x13, 320x200 pixels with 256 colors
     bool supportsMode(uint32_t width, uint32_t height, uint32_t colorDepth) {
         return width == 320 && height == 200 && colorDepth == 8;
     }
 
+    //Helper method to set up VGA graphics mode by looping through all of the registers for each port type
     bool setMode(uint32_t width, uint32_t height, uint32_t colorDepth) {
-
         if(supportsMode(width, height, colorDepth) == false) {
             return false;
         }
@@ -108,6 +117,7 @@ class graphicsVGA {
             return true;
     }
 
+    //Select the segment of video memory to start drawing at.
     uint8_t * GetFrameBufferSegment() {
         graphicsCtrlIndexPort.write(0x06);
         uint8_t segmentNum = graphicsCtrlDataPort.read() & (3<<2);
@@ -120,10 +130,14 @@ class graphicsVGA {
             case 3<<2: return(uint8_t*)0xB8000;
         }
     }
+
+    //Writes color index to the memory location in the frame buffer
     void putPixelIndex(uint32_t x, uint32_t y, uint8_t colorIndex) {
         uint8_t* pixelAddr = GetFrameBufferSegment() + 320 * y + x;
         *pixelAddr = colorIndex;
     }
+
+    //Maps the RGB to the color index
     uint8_t getColorIndex(uint8_t r, uint8_t g, uint8_t b) {
         if(r == 0x00 && g == 0x00 && b == 0xA8){
             return 0x01; //blue
