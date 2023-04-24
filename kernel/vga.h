@@ -4,9 +4,11 @@
 
 
 //This class initializes VGA display for text mode. 
-//Allows text to be outputted in terminal, we tested it in our t0. 
+//Allows text to be displayed in terminal, we tested it at the 
+//bottom of t0.cc before commenting it out.
 //We pair programmed and switched off (Katherine, Denise, Elin). 
 //Sources: https://wiki.osdev.org/VGA_Hardware 
+
 class VGA {
     public:
 
