@@ -3,7 +3,10 @@
 #include "machine.h"
 
 
-//use this to pull up text mode! make a VGA object
+//This class initializes VGA display for text mode. 
+//Allows text to be outputted in terminal, we tested it in our t0. 
+//We pair programmed and switched off (Katherine, Denise, Elin). 
+//Sources: https://wiki.osdev.org/VGA_Hardware 
 class VGA {
     public:
 
