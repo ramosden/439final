@@ -7,9 +7,7 @@ has helper methods such as putPixel to draw pixels of the selected color
 at the specified location in the video memory. 
 
 We also pair programmed this class and switched off. (Katherine, Elin, Denise)
-
 Sources: https://wiki.osdev.org/VGA_Hardware and https://files.osdev.org/mirrors/geezer/osd/graphics/index.htm#vga
-
 */
 class graphicsVGA {
     public:

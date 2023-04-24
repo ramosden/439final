@@ -4,6 +4,9 @@
 #include "machine.h"
 #include "stdint.h"
 
+/* Ports object to read/write the correct values to/from ports
+We pair programmed this too! (Katherine, Denise, Elin) */
+
 class Ports {
     public:
         uint16_t port_number;
