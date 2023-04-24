@@ -232,6 +232,7 @@ void kernelMain() {
     int n = 1;
     int cloud_offset = 0;
     int cow_offset = 0;
+    int count = 0;
     while (!exit_terminal) { 
         while ((inb(0x64) & 0x1) == 0) {}
         /* GATHER PACKETS OF DATA & DIFFERENTIATE DEVICE - HUYEN */
@@ -814,9 +815,53 @@ void kernelMain() {
             } else if (data_2 == 0x0 && data_3 == 0xff) {
                 Debug::printf("mouse moving down\n");
             } else if (data == 0x9) {
+                // cow eats the barn when it goes over it mwuahahahah
                 Debug::printf("mouse left click down\n");
+                
+                cow.removeCow(graphicVGA, cow_offset, 0); 
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                Debug::printf("cow: %d ", cow_offset);
+                cow_offset-=50;
+                if (cow_offset == -16) {
+                    cow_offset = 300;
+                } else if (cow_offset >= 130 && cow_offset < 152) {
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    // barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    // // Window * barnDoor = new Window();
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                    break;
+                }
+            Debug::printf("%d\n", cow_offset);
+            cow.createCow(graphicVGA, cow_offset, 0, cowC);
+                
             } else if (data == 0xa) {
+                // cow changes color and moves every time you you click
                 Debug::printf("mouse right click down\n");
+                if (cow_offset == 152) {
+                    break;
+                }
+                cow.removeCow(graphicVGA, cow_offset, 0); 
+                grass -> fillRectangle(0, 180, graphicVGA, 320, 200, 0x02);
+                Debug::printf("cow: %d ", cow_offset);
+                cow_offset-=4;
+                if (cow_offset == -16) {
+                    cow_offset = 300;
+                } else if (cow_offset == 152) {
+                    barn -> fillRectangle(130, 120, graphicVGA, 60, 60, 0x0C);
+                    // barn -> fillTriangle(160, 90, graphicVGA, 60, 29, 0x0C);
+                    // // Window * barnDoor = new Window();
+                    barn -> drawRectangle(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawDiagonalLines(140, 140, graphicVGA, 40, 40, 0x3F);
+                    barn -> drawRectangle(150, 115, graphicVGA, 20, 13, 0x3F);
+                    break;
+                }
+            if (count == 0x64) {
+                count = 0;
+            }
+            cow.createCow(graphicVGA, cow_offset, 0, count);
+            count++;
             }
         }
     }
